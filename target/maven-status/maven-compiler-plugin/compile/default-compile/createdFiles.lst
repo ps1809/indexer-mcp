@@ -1,0 +1,5 @@
+com\projectiq\mcp\config\McpServerConfig.class
+com\projectiq\mcp\exception\GlobalExceptionHandler.class
+com\projectiq\mcp\model\package-info.class
+com\projectiq\mcp\tools\PingTool.class
+com\projectiq\mcp\ProjectIqMcpServerApplication.class

@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: projectiq-mcp-server
+  main:
+    web-application-type: servlet
+
+server:
+  port: 8080
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com.projectiq.mcp: DEBUG
+    org.springframework.ai: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# MCP Server configuration
+spring.ai:
+  mcp:
+    server:
+      name: projectiq-mcp-server
+      version: 1.0.0
+      type: SYNC
+      stdio: true
