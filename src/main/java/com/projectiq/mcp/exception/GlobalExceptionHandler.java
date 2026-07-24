@@ -1,5 +1,7 @@
 package com.projectiq.mcp.exception;
 
+import com.projectiq.mcp.dto.ErrorResponse;
+import com.projectiq.mcp.monitoring.RequestIdManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -7,13 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Global exception handler for the MCP Server.
  * Provides centralized exception handling for all MCP tool invocations.
+ * Produces consistent error responses with request correlation IDs.
+ * Logs each failure exactly once to avoid duplicate logging.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -22,38 +22,42 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles all uncaught exceptions.
+     * Logs at ERROR level once and returns a consistent error response.
      *
      * @param ex the exception
      * @return error response with details
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        logger.error("Unexpected error occurred", ex);
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        String requestId = RequestIdManager.getCurrentRequestId();
+        logger.error("Unexpected error [requestId={}]: {}", requestId, ex.getMessage(), ex);
 
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", LocalDateTime.now().toString());
-        errorResponse.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        errorResponse.put("error", "Internal Server Error");
-        errorResponse.put("message", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                ex.getMessage()
+        );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
     /**
      * Handles illegal argument exceptions.
+     * Logs at WARN level once and returns a consistent error response.
      *
      * @param ex the exception
      * @return error response with details
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
-        logger.warn("Invalid argument provided: {}", ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        String requestId = RequestIdManager.getCurrentRequestId();
+        logger.warn("Invalid argument [requestId={}]: {}", requestId, ex.getMessage());
 
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", LocalDateTime.now().toString());
-        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
-        errorResponse.put("error", "Bad Request");
-        errorResponse.put("message", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage()
+        );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }

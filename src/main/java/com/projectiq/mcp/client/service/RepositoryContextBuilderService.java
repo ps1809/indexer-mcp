@@ -33,6 +33,7 @@ import com.projectiq.mcp.client.exception.IndexerClientException;
 import com.projectiq.mcp.client.exception.IndexerConnectionException;
 import com.projectiq.mcp.client.exception.IndexerHttpException;
 import com.projectiq.mcp.client.exception.IndexerTimeoutException;
+import com.projectiq.mcp.monitoring.PerformanceTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

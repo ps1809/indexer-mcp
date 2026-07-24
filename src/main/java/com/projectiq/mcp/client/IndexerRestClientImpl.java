@@ -1,5 +1,6 @@
 package com.projectiq.mcp.client;
 
+import com.projectiq.mcp.cache.IndexerResponseCache;
 import com.projectiq.mcp.client.dto.ClassRequest;
 import com.projectiq.mcp.client.dto.ClassResponse;
 import com.projectiq.mcp.client.dto.DependencyRequest;
@@ -23,6 +24,7 @@ import com.projectiq.mcp.client.exception.IndexerClientException;
 import com.projectiq.mcp.client.exception.IndexerConnectionException;
 import com.projectiq.mcp.client.exception.IndexerHttpException;
 import com.projectiq.mcp.client.exception.IndexerTimeoutException;
+import com.projectiq.mcp.monitoring.PerformanceTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
@@ -39,17 +41,30 @@ import java.net.SocketTimeoutException;
 
 /**
  * Implementation of {@link IndexerRestClient} using Spring's RestClient.
- * Handles HTTP communication with ProjectIQ Indexer including error handling.
+ * Handles HTTP communication with ProjectIQ Indexer including error handling
+ * and response caching.
  */
 @Component
 public class IndexerRestClientImpl implements IndexerRestClient {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexerRestClientImpl.class);
 
-    private final RestClient restClient;
+    private static final String CACHE_PREFIX_SUMMARY = "summary:";
+    private static final String CACHE_PREFIX_STATS = "stats:";
+    private static final String CACHE_PREFIX_SEARCH = "search:";
+    private static final String CACHE_PREFIX_SPRING = "spring:";
+    private static final String CACHE_PREFIX_REST = "rest:";
+    private static final String CACHE_PREFIX_DEPENDENCY = "dependency:";
+    private static final String CACHE_PREFIX_CLASS = "class:";
+    private static final String CACHE_PREFIX_METHOD = "method:";
+    private static final String CACHE_PREFIX_RELATED = "related:";
 
-    public IndexerRestClientImpl(RestClient indexerRestClient) {
+    private final RestClient restClient;
+    private final IndexerResponseCache cache;
+
+    public IndexerRestClientImpl(RestClient indexerRestClient, IndexerResponseCache cache) {
         this.restClient = indexerRestClient;
+        this.cache = cache;
     }
 
     @Override
@@ -105,6 +120,13 @@ public class IndexerRestClientImpl implements IndexerRestClient {
 
     @Override
     public RepositorySummaryResponse getRepositorySummary(RepositorySummaryRequest request) {
+        String cacheKey = CACHE_PREFIX_SUMMARY + request.getRepositoryName() + ":" + request.getBranch();
+        RepositorySummaryResponse cached = (RepositorySummaryResponse) cache.get(cacheKey);
+        if (cached != null) {
+            logger.debug("Cache hit for repository summary: {}", cacheKey);
+            return cached;
+        }
+
         logger.debug("Fetching repository summary for repository: {}, branch: {}", 
                 request.getRepositoryName(), request.getBranch());
         
@@ -125,6 +147,7 @@ public class IndexerRestClientImpl implements IndexerRestClient {
                 throw new IndexerClientException("Received null response from Indexer repository summary endpoint");
             }
 
+            cache.put(cacheKey, response);
             logger.debug("Indexer repository summary: {}", response);
             return response;
         } catch (ResourceAccessException e) {
@@ -138,6 +161,13 @@ public class IndexerRestClientImpl implements IndexerRestClient {
 
     @Override
     public RepositoryStatsResponse getRepositoryStatistics(RepositoryStatsRequest request) {
+        String cacheKey = CACHE_PREFIX_STATS + request.getRepositoryName() + ":" + request.getBranch();
+        RepositoryStatsResponse cached = (RepositoryStatsResponse) cache.get(cacheKey);
+        if (cached != null) {
+            logger.debug("Cache hit for repository statistics: {}", cacheKey);
+            return cached;
+        }
+
         logger.debug("Fetching repository statistics for repository: {}, branch: {}", 
                 request.getRepositoryName(), request.getBranch());
         
@@ -158,6 +188,7 @@ public class IndexerRestClientImpl implements IndexerRestClient {
                 throw new IndexerClientException("Received null response from Indexer repository statistics endpoint");
             }
 
+            cache.put(cacheKey, response);
             logger.debug("Indexer repository statistics: {}", response);
             return response;
         } catch (ResourceAccessException e) {
@@ -171,6 +202,15 @@ public class IndexerRestClientImpl implements IndexerRestClient {
 
     @Override
     public SearchCodeResponse searchCode(SearchCodeRequest request) {
+        String cacheKey = CACHE_PREFIX_SEARCH + request.getRepositoryName() + ":" 
+                + request.getBranch() + ":" + request.getQuery() + ":" 
+                + request.getPackageName() + ":" + request.getMaxResults();
+        SearchCodeResponse cached = (SearchCodeResponse) cache.get(cacheKey);
+        if (cached != null) {
+            logger.debug("Cache hit for search code: {}", cacheKey);
+            return cached;
+        }
+
         logger.debug("Searching code for repository: {}, query: {}", 
                 request.getRepositoryName(), request.getQuery());
         
@@ -207,6 +247,7 @@ public class IndexerRestClientImpl implements IndexerRestClient {
                 throw new IndexerClientException("Received null response from Indexer search endpoint");
             }
 
+            cache.put(cacheKey, response);
             logger.debug("Indexer search results: {} total", response.getTotalResults());
             return response;
         } catch (ResourceAccessException e) {
@@ -220,6 +261,15 @@ public class IndexerRestClientImpl implements IndexerRestClient {
 
     @Override
     public SpringComponentResponse findSpringComponent(SpringComponentRequest request) {
+        String cacheKey = CACHE_PREFIX_SPRING + request.getRepositoryName() + ":" 
+                + request.getBranch() + ":" + request.getPackageName() + ":" 
+                + (request.getComponentTypes() != null ? String.join(",", request.getComponentTypes()) : "");
+        SpringComponentResponse cached = (SpringComponentResponse) cache.get(cacheKey);
+        if (cached != null) {
+            logger.debug("Cache hit for spring component: {}", cacheKey);
+            return cached;
+        }
+
         logger.debug("Finding Spring components for repository: {}, types: {}", 
                 request.getRepositoryName(), request.getComponentTypes());
         
@@ -252,6 +302,7 @@ public class IndexerRestClientImpl implements IndexerRestClient {
                 throw new IndexerClientException("Received null response from Indexer spring component endpoint");
             }
 
+            cache.put(cacheKey, response);
             logger.debug("Indexer Spring component results: {} total", response.getTotalResults());
             return response;
         } catch (ResourceAccessException e) {
@@ -265,6 +316,15 @@ public class IndexerRestClientImpl implements IndexerRestClient {
 
     @Override
     public RestApiResponse findRestApi(RestApiRequest request) {
+        String cacheKey = CACHE_PREFIX_REST + request.getRepositoryName() + ":" 
+                + request.getBranch() + ":" + request.getPackageName() + ":" 
+                + (request.getHttpMethods() != null ? String.join(",", request.getHttpMethods()) : "");
+        RestApiResponse cached = (RestApiResponse) cache.get(cacheKey);
+        if (cached != null) {
+            logger.debug("Cache hit for rest api: {}", cacheKey);
+            return cached;
+        }
+
         logger.debug("Finding REST API endpoints for repository: {}, methods: {}", 
                 request.getRepositoryName(), request.getHttpMethods());
         
@@ -297,6 +357,7 @@ public class IndexerRestClientImpl implements IndexerRestClient {
                 throw new IndexerClientException("Received null response from Indexer REST API endpoint");
             }
 
+            cache.put(cacheKey, response);
             logger.debug("Indexer REST API results: {} total", response.getTotalResults());
             return response;
         } catch (ResourceAccessException e) {
@@ -310,6 +371,16 @@ public class IndexerRestClientImpl implements IndexerRestClient {
 
     @Override
     public DependencyResponse findDependency(DependencyRequest request) {
+        String cacheKey = CACHE_PREFIX_DEPENDENCY + request.getRepositoryName() + ":" 
+                + request.getBranch() + ":" + request.getPackageName() + ":" 
+                + request.getSearchPattern() + ":" 
+                + (request.getDependencyTypes() != null ? String.join(",", request.getDependencyTypes()) : "");
+        DependencyResponse cached = (DependencyResponse) cache.get(cacheKey);
+        if (cached != null) {
+            logger.debug("Cache hit for dependency: {}", cacheKey);
+            return cached;
+        }
+
         logger.debug("Finding dependencies for repository: {}, types: {}", 
                 request.getRepositoryName(), request.getDependencyTypes());
         
@@ -346,6 +417,7 @@ public class IndexerRestClientImpl implements IndexerRestClient {
                 throw new IndexerClientException("Received null response from Indexer dependency endpoint");
             }
 
+            cache.put(cacheKey, response);
             logger.debug("Indexer dependency results: {} total", response.getTotalResults());
             return response;
         } catch (ResourceAccessException e) {
@@ -359,6 +431,16 @@ public class IndexerRestClientImpl implements IndexerRestClient {
 
     @Override
     public ClassResponse findClass(ClassRequest request) {
+        String cacheKey = CACHE_PREFIX_CLASS + request.getRepositoryName() + ":" 
+                + request.getBranch() + ":" + request.getClassName() + ":" 
+                + request.getPackageName() + ":" 
+                + (request.getClassTypes() != null ? String.join(",", request.getClassTypes()) : "");
+        ClassResponse cached = (ClassResponse) cache.get(cacheKey);
+        if (cached != null) {
+            logger.debug("Cache hit for class: {}", cacheKey);
+            return cached;
+        }
+
         logger.debug("Finding classes for repository: {}, className: {}", 
                 request.getRepositoryName(), request.getClassName());
         
@@ -395,6 +477,7 @@ public class IndexerRestClientImpl implements IndexerRestClient {
                 throw new IndexerClientException("Received null response from Indexer class endpoint");
             }
 
+            cache.put(cacheKey, response);
             logger.debug("Indexer class results: {} total", response.getTotalResults());
             return response;
         } catch (ResourceAccessException e) {
@@ -408,6 +491,16 @@ public class IndexerRestClientImpl implements IndexerRestClient {
 
     @Override
     public MethodResponse findMethod(MethodRequest request) {
+        String cacheKey = CACHE_PREFIX_METHOD + request.getRepositoryName() + ":" 
+                + request.getBranch() + ":" + request.getMethodName() + ":" 
+                + request.getPackageName() + ":" 
+                + (request.getMethodTypes() != null ? String.join(",", request.getMethodTypes()) : "");
+        MethodResponse cached = (MethodResponse) cache.get(cacheKey);
+        if (cached != null) {
+            logger.debug("Cache hit for method: {}", cacheKey);
+            return cached;
+        }
+
         logger.debug("Finding methods for repository: {}, methodName: {}", 
                 request.getRepositoryName(), request.getMethodName());
         
@@ -444,6 +537,7 @@ public class IndexerRestClientImpl implements IndexerRestClient {
                 throw new IndexerClientException("Received null response from Indexer method endpoint");
             }
 
+            cache.put(cacheKey, response);
             logger.debug("Indexer method results: {} total", response.getTotalResults());
             return response;
         } catch (ResourceAccessException e) {
@@ -457,6 +551,15 @@ public class IndexerRestClientImpl implements IndexerRestClient {
 
     @Override
     public RelatedFileResponse findRelatedFiles(RelatedFileRequest request) {
+        String cacheKey = CACHE_PREFIX_RELATED + request.getRepositoryName() + ":" 
+                + request.getBranch() + ":" + request.getSearchTarget() + ":" 
+                + (request.getTargetType() != null ? request.getTargetType().name() : "");
+        RelatedFileResponse cached = (RelatedFileResponse) cache.get(cacheKey);
+        if (cached != null) {
+            logger.debug("Cache hit for related files: {}", cacheKey);
+            return cached;
+        }
+
         logger.debug("Finding related files for repository: {}, target: {}, type: {}", 
                 request.getRepositoryName(), request.getSearchTarget(), request.getTargetType());
         
@@ -489,6 +592,7 @@ public class IndexerRestClientImpl implements IndexerRestClient {
                 throw new IndexerClientException("Received null response from Indexer related-files endpoint");
             }
 
+            cache.put(cacheKey, response);
             logger.debug("Indexer related file results: {} total", response.getTotalResults());
             return response;
         } catch (ResourceAccessException e) {

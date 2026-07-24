@@ -13,6 +13,7 @@ import com.projectiq.mcp.client.exception.IndexerHttpException;
 import com.projectiq.mcp.client.exception.IndexerTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -78,6 +79,9 @@ public class FindMethodTool {
      * @param branch the branch name filter (optional)
      * @return JSON string with method metadata or error message
      */
+    @Tool(description = "Find Java methods in ProjectIQ Indexer. " +
+            "Returns method metadata including name, declaring class, package, return type, parameters, " +
+            "visibility, static/abstract flags, annotations, and source file location.")
     public String findMethod(String repositoryName, String methodName, String packageName, String branch) {
         // Validate required parameters
         if (repositoryName == null || repositoryName.isEmpty()) {

@@ -14,7 +14,7 @@ logging:
     com.projectiq.mcp: DEBUG
     org.springframework.ai: DEBUG
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{requestId:-N/A}] - %msg%n"
 
 # Actuator configuration
 management:
@@ -41,3 +41,9 @@ projectiq:
     base-url: http://localhost:8081
     connect-timeout: 5000
     read-timeout: 30000
+
+  # Response cache configuration
+  cache:
+    enabled: true
+    ttl-seconds: 300
+    max-size: 1000
