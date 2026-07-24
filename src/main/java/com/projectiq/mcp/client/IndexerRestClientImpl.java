@@ -1,5 +1,7 @@
 package com.projectiq.mcp.client;
 
+import com.projectiq.mcp.client.dto.DependencyRequest;
+import com.projectiq.mcp.client.dto.DependencyResponse;
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
 import com.projectiq.mcp.client.dto.RepositoryStatsRequest;
 import com.projectiq.mcp.client.dto.RepositoryStatsResponse;
@@ -295,6 +297,55 @@ public class IndexerRestClientImpl implements IndexerRestClient {
             throw handleResourceAccessException(e);
         } catch (RestClientException e) {
             String message = "Failed to deserialize response from Indexer REST API endpoint: " + e.getMessage();
+            logger.error(message, e);
+            throw new IndexerClientException(message, e);
+        }
+    }
+
+    @Override
+    public DependencyResponse findDependency(DependencyRequest request) {
+        logger.debug("Finding dependencies for repository: {}, types: {}", 
+                request.getRepositoryName(), request.getDependencyTypes());
+        
+        StringBuilder urlBuilder = new StringBuilder("/api/v1/indexer/");
+        urlBuilder.append(request.getRepositoryName()).append("/dependency?types=");
+        
+        if (request.getDependencyTypes() != null && !request.getDependencyTypes().isEmpty()) {
+            urlBuilder.append(String.join(",", request.getDependencyTypes()));
+        }
+        
+        if (request.getBranch() != null && !request.getBranch().isEmpty()) {
+            urlBuilder.append("&branch=").append(request.getBranch());
+        }
+        
+        if (request.getPackageName() != null && !request.getPackageName().isEmpty()) {
+            urlBuilder.append("&packageName=").append(request.getPackageName());
+        }
+        
+        if (request.getSearchPattern() != null && !request.getSearchPattern().isEmpty()) {
+            urlBuilder.append("&searchPattern=").append(request.getSearchPattern());
+        }
+
+        String url = urlBuilder.toString();
+
+        try {
+            DependencyResponse response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .body(DependencyResponse.class);
+
+            if (response == null) {
+                throw new IndexerClientException("Received null response from Indexer dependency endpoint");
+            }
+
+            logger.debug("Indexer dependency results: {} total", response.getTotalResults());
+            return response;
+        } catch (ResourceAccessException e) {
+            throw handleResourceAccessException(e);
+        } catch (RestClientException e) {
+            String message = "Failed to deserialize response from Indexer dependency endpoint: " + e.getMessage();
             logger.error(message, e);
             throw new IndexerClientException(message, e);
         }

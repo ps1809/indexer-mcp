@@ -8,6 +8,8 @@ import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
 import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 import com.projectiq.mcp.client.dto.SearchCodeRequest;
 import com.projectiq.mcp.client.dto.SearchCodeResponse;
+import com.projectiq.mcp.client.dto.DependencyRequest;
+import com.projectiq.mcp.client.dto.DependencyResponse;
 import com.projectiq.mcp.client.dto.RestApiRequest;
 import com.projectiq.mcp.client.dto.RestApiResponse;
 import com.projectiq.mcp.client.dto.SpringComponentRequest;
@@ -72,4 +74,12 @@ public interface IndexerRestClient {
      * @return REST API response with matching endpoints
      */
     RestApiResponse findRestApi(RestApiRequest request);
+
+    /**
+     * Finds dependencies in the Indexer.
+     *
+     * @param request the dependency request containing search criteria
+     * @return dependency response with matching dependencies
+     */
+    DependencyResponse findDependency(DependencyRequest request);
 }
