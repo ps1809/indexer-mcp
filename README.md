@@ -4,7 +4,35 @@ A standalone MCP (Model Context Protocol) server that exposes ProjectIQ Indexer 
 
 ## Overview
 
-ProjectIQ MCP Server bridges the gap between **ProjectIQ Indexer** (a code intelligence engine) and **AI coding agents** (like Cline) by implementing the Model Context Protocol (MCP). This allows AI agents to query repository structure, search code, find Spring components, inspect dependencies, and build rich development context — all through standardised MCP tool calls.
+ProjectIQ MCP Server bridges the gap between **ProjectIQ Indexer** (a code intelligence engine) and **AI coding agents** (like Cline) by implementing the Model Context Protocol (MCP). This allows AI agents to query repository structure, search code, find Spring components, inspect dependencies, build rich development context, and execute intelligent developer workflows — all through standardised MCP tool calls.
+
+### Phase 2: Intelligent Developer Workflow
+
+Phase 2 introduces a **deterministic development workflow** that guides AI coding agents through a structured, multi-step analysis pipeline. Instead of requiring agents to manually chain individual tool calls, Phase 2 provides high-level intelligent tools that automate task analysis, context assembly, impact evaluation, implementation planning, test analysis, refactoring guidance, architecture insights, and repository health evaluation.
+
+```
+Natural Language Request
+         ↓
+  [analyze_task] → Task Analysis
+         ↓
+  [assemble_context] → Context Assembly
+         ↓
+  [analyze_impact] → Impact Analysis
+         ↓
+  [implementation_plan] → Implementation Planning
+         ↓
+  [test_impact_analysis] → Test Impact Analysis
+         ↓
+  [refactoring_assistant] → Refactoring Guidance
+         ↓
+  [architecture_insights] → Architecture Insights
+         ↓
+  [repository_health] → Repository Health
+         ↓
+  [repository_conventions] → Repository Conventions
+         ↓
+      Final Response
+```
 
 ### Architecture
 
@@ -15,22 +43,22 @@ ProjectIQ MCP Server bridges the gap between **ProjectIQ Indexer** (a code intel
 |   Coding Agent)   |                            |   Server           |
 |                   |                            |   (port 8080)      |
 +-------------------+                            +-------------------+
-                                                        |
-                                              REST/HTTP |
-                                                        v
-                                               +-------------------+
-                                               |                   |
-                                               |  ProjectIQ        |
-                                               |  Indexer          |
-                                               |  (port 8081)      |
-                                               |                   |
-                                               +-------------------+
+                                                         |
+                                               REST/HTTP |
+                                                         v
+                                                +-------------------+
+                                                |                   |
+                                                |  ProjectIQ        |
+                                                |  Indexer          |
+                                                |  (port 8081)      |
+                                                |                   |
+                                                +-------------------+
 ```
 
 **Components:**
 
 - **Cline**: AI coding agent that discovers and invokes MCP tools
-- **ProjectIQ MCP Server**: Spring Boot application exposing repository intelligence as MCP tools
+- **ProjectIQ MCP Server**: Spring Boot application exposing repository intelligence as MCP tools and intelligent developer workflows
 - **ProjectIQ Indexer**: REST API providing code analysis, search, and repository metadata
 
 ## Prerequisites
@@ -124,7 +152,7 @@ spring.ai:
 ```yaml
 logging:
   level:
-    com.projectiq.mcp: DEBUG             # Detailed MCP tool logging
+    com.projectiq.mcp: INFO              # MCP tool logging
     org.springframework.ai: DEBUG        # MCP framework logging
 ```
 
@@ -175,6 +203,34 @@ The server registers the following MCP tools for AI agent discovery:
 | `build_context` | Build a structured context summary for a repository |
 | `development_context` | Get development context with recent changes and active work |
 | `prompt_context` | Get prompt-friendly context for AI model interactions |
+
+### Phase 2: Intelligent Developer Workflow
+
+| Tool | Description |
+|------|-------------|
+| `analyze_task` | Analyze development requests, classifying task type, identifying entities involved, and estimating complexity |
+| `assemble_context` | Assemble relevant repository context for a task, including related files, classes, methods, and dependencies |
+| `analyze_impact` | Evaluate the impact of proposed changes, identifying scope, risk, affected components, and dependencies |
+| `implementation_plan` | Generate a deterministic implementation plan with ordered steps, files to modify, testing scope, and risks |
+| `test_impact_analysis` | Analyze which tests are affected by proposed changes and recommend testing strategies |
+| `refactoring_assistant` | Provide refactoring recommendations with goals, steps, affected components, risks, and testing strategies |
+| `architecture_insights` | Extract architecture patterns, layering, dependency flows, and design characteristics from repository code |
+| `repository_health` | Assess repository health including code quality, test coverage, documentation, and dependency freshness |
+| `repository_conventions` | Discover repository conventions including naming patterns, code styles, testing frameworks, and documentation practices |
+
+### Workflow Integration Services
+
+| Service | Description |
+|---------|-------------|
+| `TaskAnalysisService` | Analyzes natural language development requests to determine task type, entities, complexity, and confidence |
+| `ContextAssemblyService` | Assembles relevant repository context by identifying related files, classes, methods, and dependencies |
+| `ImpactAnalysisService` | Evaluates scope, risk level, affected components, and dependencies for proposed changes |
+| `ImplementationPlanningService` | Produces a structured implementation plan with steps, files, validation, and risk mitigation |
+| `TestImpactAnalysisService` | Identifies affected test classes, missing tests, test execution order, and effort estimation |
+| `RefactoringAssistantService` | Generates refactoring opportunities with goals, steps, risks, and testing strategies |
+| `ArchitectureInsightsService` | Reveals architecture patterns, layering violations, cyclic dependencies, and design characteristics |
+| `RepositoryHealthService` | Assesses code quality metrics, test coverage, documentation status, and dependency freshness |
+| `RepositoryConventionAnalyzerService` | Discovers naming conventions, code patterns, testing frameworks, and documentation standards |
 
 ## Example MCP Requests
 
@@ -244,6 +300,155 @@ The server registers the following MCP tools for AI agent discovery:
 }
 ```
 
+### Analyze Task (Phase 2)
+
+```json
+{
+  "name": "analyze_task",
+  "arguments": {
+    "task": "Add pagination to UserController",
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+### Assemble Context (Phase 2)
+
+```json
+{
+  "name": "assemble_context",
+  "arguments": {
+    "task": "Add pagination to UserController",
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+### Analyze Impact (Phase 2)
+
+```json
+{
+  "name": "analyze_impact",
+  "arguments": {
+    "task": "Add pagination to UserController",
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+### Implementation Plan (Phase 2)
+
+```json
+{
+  "name": "implementation_plan",
+  "arguments": {
+    "task": "Add pagination to UserController",
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+### Test Impact Analysis (Phase 2)
+
+```json
+{
+  "name": "test_impact_analysis",
+  "arguments": {
+    "task": "Add pagination to UserController",
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+### Refactoring Assistant (Phase 2)
+
+```json
+{
+  "name": "refactoring_assistant",
+  "arguments": {
+    "description": "Extract UserService interface from implementation class",
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+### Architecture Insights (Phase 2)
+
+```json
+{
+  "name": "architecture_insights",
+  "arguments": {
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+### Repository Health (Phase 2)
+
+```json
+{
+  "name": "repository_health",
+  "arguments": {
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+### Repository Conventions (Phase 2)
+
+```json
+{
+  "name": "repository_conventions",
+  "arguments": {
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+## Intelligent Developer Workflow
+
+The Phase 2 tools can be chained together to form a complete deterministic workflow. The following sequence is recommended for AI coding agents:
+
+1. **`analyze_task`** — Understand the request (task type, entities, complexity)
+2. **`assemble_context`** — Gather relevant repository context
+3. **`analyze_impact`** — Evaluate the impact of the proposed change
+4. **`implementation_plan`** — Generate a structured implementation plan
+5. **`test_impact_analysis`** — Identify affected tests and testing scope
+6. **`refactoring_assistant`** — Get refactoring recommendations if needed
+7. **`architecture_insights`** — Understand the architecture for informed decisions
+8. **`repository_health`** — Assess repository health before making changes
+9. **`repository_conventions`** — Discover conventions to maintain consistency
+
+Each tool provides deterministic, structured JSON responses that guide the AI agent through the development process without generating or modifying code.
+
+### Example Workflow: Complete Feature Implementation
+
+1. **Task Analysis**: `analyze_task("Add pagination to UserController", "my-project")`
+   - → Returns: task type (NEW_FEATURE), entities, complexity (MEDIUM)
+2. **Context Assembly**: `assemble_context("Add pagination to UserController", "my-project")`
+   - → Returns: related files, classes, methods, dependencies
+3. **Impact Analysis**: `analyze_impact("Add pagination to UserController", "my-project")`
+   - → Returns: scope (MODERATE), risk (LOW), components affected
+4. **Implementation Plan**: `implementation_plan("Add pagination to UserController", "my-project")`
+   - → Returns: ordered steps, files to modify, validation steps
+5. **Test Impact**: `test_impact_analysis("Add pagination to UserController", "my-project")`
+   - → Returns: affected tests, missing tests, testing effort
+6. **Architecture Insights**: `architecture_insights("my-project")`
+   - → Returns: layered architecture, dependency flows
+7. **Repository Health**: `repository_health("my-project")`
+   - → Returns: coverage gaps, code quality issues
+8. **Repository Conventions**: `repository_conventions("my-project")`
+   - → Returns: naming patterns, code style conventions
+
 ## Troubleshooting
 
 ### Server Won't Start
@@ -270,6 +475,13 @@ The server registers the following MCP tools for AI agent discovery:
 2. **Memory issues**: Reduce `max-size` in cache configuration
 3. **Debug caching**: Set `com.projectiq.mcp.cache: DEBUG` in logging config
 
+### Phase 2 Tool Issues
+
+1. **Missing tools**: Verify `McpServerConfig.java` registers all Phase 2 tools (see [Build Instructions](#build-instructions))
+2. **Deterministic responses**: Phase 2 tools provide structured JSON. If response format is unexpected, check the Indexer is healthy
+3. **Workflow ordering**: The recommended workflow sequence ensures optimal context propagation between tools
+4. **Empty context**: If `assemble_context` returns empty results, the repository may not be fully indexed by ProjectIQ Indexer
+
 ## Project Structure
 
 ```
@@ -277,6 +489,32 @@ src/
 ├── main/
 │   ├── java/com/projectiq/mcp/
 │   │   ├── ProjectIqMcpServerApplication.java    # Application entry point
+│   │   ├── analysis/                             # Phase 2: Intelligent Developer Workflow
+│   │   │   ├── dto/                              # Analysis DTOs
+│   │   │   │   ├── TaskType.java                 # Development task type enum
+│   │   │   │   ├── ConfidenceLevel.java          # Confidence level enum
+│   │   │   │   ├── ComplexityLevel.java          # Complexity level enum
+│   │   │   │   ├── TaskAnalysisResponse.java     # Task analysis response DTO
+│   │   │   │   ├── ContextAssemblyResponse.java  # Context assembly response DTO
+│   │   │   │   ├── ScopeLevel.java              # Impact scope level enum
+│   │   │   │   ├── RiskLevel.java               # Risk level enum
+│   │   │   │   ├── ImpactAnalysisResponse.java  # Impact analysis response DTO
+│   │   │   │   ├── ImplementationPlanningResponse.java  # Implementation plan response DTO
+│   │   │   │   ├── TestImpactAnalysisResponse.java      # Test impact analysis response DTO
+│   │   │   │   ├── RefactoringAssistantResponse.java    # Refactoring assistant response DTO
+│   │   │   │   ├── ArchitectureInsightsResponse.java    # Architecture insights response DTO
+│   │   │   │   ├── RepositoryHealthResponse.java        # Repository health response DTO
+│   │   │   │   └── RepositoryConventionResponse.java    # Repository convention response DTO
+│   │   │   └── service/                          # Analysis service implementations
+│   │   │       ├── TaskAnalysisService.java
+│   │   │       ├── ContextAssemblyService.java
+│   │   │       ├── ImpactAnalysisService.java
+│   │   │       ├── ImplementationPlanningService.java
+│   │   │       ├── TestImpactAnalysisService.java
+│   │   │       ├── RefactoringAssistantService.java
+│   │   │       ├── ArchitectureInsightsService.java
+│   │   │       ├── RepositoryHealthService.java
+│   │   │       └── RepositoryConventionAnalyzerService.java
 │   │   ├── config/
 │   │   │   └── McpServerConfig.java              # MCP tool registration
 │   │   ├── exception/
@@ -313,10 +551,32 @@ src/
 │   │       ├── ListRelatedFilesTool.java
 │   │       ├── BuildContextTool.java
 │   │       ├── DevelopmentContextTool.java
-│   │       └── PromptContextTool.java
+│   │       ├── PromptContextTool.java
+│   │       ├── AnalyzeTaskTool.java              # Phase 2 tools
+│   │       ├── AssembleContextTool.java
+│   │       ├── AnalyzeImpactTool.java
+│   │       ├── ImplementationPlanTool.java
+│   │       ├── TestImpactAnalysisTool.java
+│   │       ├── RefactoringAssistantTool.java
+│   │       ├── ArchitectureInsightsTool.java
+│   │       ├── RepositoryHealthTool.java
+│   │       └── RepositoryConventionTool.java
 │   └── resources/
 │       └── application.yml                       # Application configuration
 └── test/java/com/projectiq/mcp/                  # Unit and integration tests
+    ├── analysis/                                 # Phase 2 analysis tests
+    │   ├── dto/                                  # DTO tests
+    │   └── service/                              # Service tests
+    ├── cache/                                    # Cache tests
+    ├── client/                                   # Client tests
+    │   ├── config/
+    │   ├── dto/
+    │   ├── exception/
+    │   └── service/
+    ├── dto/
+    ├── exception/
+    ├── monitoring/
+    └── tools/                                    # MCP tool tests
 ```
 
 ## Development
@@ -339,6 +599,7 @@ mvn test
 2. Add a method annotated with `@Tool(description = "...")`
 3. Register the tool in `McpServerConfig.java`
 4. Add unit tests in the corresponding test directory
+5. For analysis tools, add service and DTO in the `analysis/` package
 
 ## License
 

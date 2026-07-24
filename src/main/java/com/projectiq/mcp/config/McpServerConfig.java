@@ -11,14 +11,17 @@ import com.projectiq.mcp.tools.FindDependencyTool;
 import com.projectiq.mcp.tools.FindMethodTool;
 import com.projectiq.mcp.tools.FindRestApiTool;
 import com.projectiq.mcp.tools.FindSpringComponentTool;
+import com.projectiq.mcp.tools.ImplementationPlanTool;
 import com.projectiq.mcp.tools.ListRelatedFilesTool;
 import com.projectiq.mcp.tools.PingTool;
 import com.projectiq.mcp.tools.PromptContextTool;
+import com.projectiq.mcp.tools.RefactoringAssistantTool;
 import com.projectiq.mcp.tools.RepositoryConventionTool;
 import com.projectiq.mcp.tools.RepositoryHealthTool;
 import com.projectiq.mcp.tools.RepositoryStatisticsTool;
 import com.projectiq.mcp.tools.RepositorySummaryTool;
 import com.projectiq.mcp.tools.SearchCodeTool;
+import com.projectiq.mcp.tools.TestImpactAnalysisTool;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.context.annotation.Bean;
@@ -53,6 +56,9 @@ public class McpServerConfig {
      * @param assembleContextTool the context assembly tool
      * @param developmentContextTool the development context tool
      * @param promptContextTool the prompt context tool
+     * @param implementationPlanTool the implementation plan tool
+     * @param testImpactAnalysisTool the test impact analysis tool
+     * @param refactoringAssistantTool the refactoring assistant tool
      * @return ToolCallbackProvider containing all registered tools
      */
     @Bean
@@ -75,7 +81,10 @@ public class McpServerConfig {
             DevelopmentContextTool developmentContextTool,
             PromptContextTool promptContextTool,
             RepositoryConventionTool repositoryConventionTool,
-            RepositoryHealthTool repositoryHealthTool) {
+            RepositoryHealthTool repositoryHealthTool,
+            ImplementationPlanTool implementationPlanTool,
+            TestImpactAnalysisTool testImpactAnalysisTool,
+            RefactoringAssistantTool refactoringAssistantTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -96,7 +105,10 @@ public class McpServerConfig {
                         developmentContextTool,
                         promptContextTool,
                         repositoryConventionTool,
-                        repositoryHealthTool
+                        repositoryHealthTool,
+                        implementationPlanTool,
+                        testImpactAnalysisTool,
+                        refactoringAssistantTool
                 )
                 .build();
     }

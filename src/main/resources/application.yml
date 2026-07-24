@@ -24,8 +24,8 @@ server:
 logging:
   level:
     root: INFO
-    com.projectiq.mcp: DEBUG          # Set to DEBUG for detailed MCP tool logging
-    org.springframework.ai: DEBUG     # Set to DEBUG for MCP framework logging
+    com.projectiq.mcp: INFO           # Set to DEBUG for detailed MCP tool logging
+    org.springframework.ai: INFO      # Set to DEBUG for MCP framework logging
   pattern:
     # Includes requestId from MDC for request correlation tracing
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{requestId:-N/A}] - %msg%n"
