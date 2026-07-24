@@ -28,6 +28,7 @@ import com.projectiq.mcp.tools.PlanExecutionTool;
 import com.projectiq.mcp.tools.PromptContextTool;
 import com.projectiq.mcp.tools.OrchestrateWorkflowTool;
 import com.projectiq.mcp.tools.QueryRepositoryGraphTool;
+import com.projectiq.mcp.tools.CrossRepositoryAnalysisTool;
 import com.projectiq.mcp.tools.RecommendDevelopmentStrategyTool;
 import com.projectiq.mcp.tools.RefactoringAssistantTool;
 import com.projectiq.mcp.tools.RepositoryConventionTool;
@@ -96,6 +97,7 @@ public class McpServerConfig {
      * @param importAgentHandoffTool the import agent handoff tool
      * @param predictDependencyChangeTool the predict dependency change tool
      * @param queryRepositoryGraphTool the query repository graph tool
+     * @param crossRepositoryAnalysisTool the cross-repository analysis tool
      * @param recommendDevelopmentStrategyTool the recommend development strategy tool
      * @return ToolCallbackProvider containing all registered tools
      */
@@ -141,7 +143,8 @@ public class McpServerConfig {
             ImportAgentHandoffTool importAgentHandoffTool,
             PredictDependencyChangeTool predictDependencyChangeTool,
             QueryRepositoryGraphTool queryRepositoryGraphTool,
-            RecommendDevelopmentStrategyTool recommendDevelopmentStrategyTool) {
+            RecommendDevelopmentStrategyTool recommendDevelopmentStrategyTool,
+            CrossRepositoryAnalysisTool crossRepositoryAnalysisTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -184,7 +187,8 @@ public class McpServerConfig {
                         importAgentHandoffTool,
                         predictDependencyChangeTool,
                         queryRepositoryGraphTool,
-                        recommendDevelopmentStrategyTool
+                        recommendDevelopmentStrategyTool,
+                        crossRepositoryAnalysisTool
                 )
                 .build();
     }
