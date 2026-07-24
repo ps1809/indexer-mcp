@@ -6,6 +6,8 @@ import com.projectiq.mcp.client.dto.RepositoryStatsRequest;
 import com.projectiq.mcp.client.dto.RepositoryStatsResponse;
 import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
 import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
+import com.projectiq.mcp.client.dto.SearchCodeRequest;
+import com.projectiq.mcp.client.dto.SearchCodeResponse;
 
 /**
  * Interface for REST client communication with ProjectIQ Indexer.
@@ -42,4 +44,12 @@ public interface IndexerRestClient {
      * @return repository statistics response
      */
     RepositoryStatsResponse getRepositoryStatistics(RepositoryStatsRequest request);
+
+    /**
+     * Searches code in the Indexer.
+     *
+     * @param request the search code request containing search criteria
+     * @return search code response with matching results
+     */
+    SearchCodeResponse searchCode(SearchCodeRequest request);
 }
