@@ -7,6 +7,8 @@ import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
 import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 import com.projectiq.mcp.client.dto.SearchCodeRequest;
 import com.projectiq.mcp.client.dto.SearchCodeResponse;
+import com.projectiq.mcp.client.dto.RestApiRequest;
+import com.projectiq.mcp.client.dto.RestApiResponse;
 import com.projectiq.mcp.client.dto.SpringComponentRequest;
 import com.projectiq.mcp.client.dto.SpringComponentResponse;
 import com.projectiq.mcp.client.exception.IndexerClientException;
@@ -248,6 +250,51 @@ public class IndexerRestClientImpl implements IndexerRestClient {
             throw handleResourceAccessException(e);
         } catch (RestClientException e) {
             String message = "Failed to deserialize response from Indexer spring component endpoint: " + e.getMessage();
+            logger.error(message, e);
+            throw new IndexerClientException(message, e);
+        }
+    }
+
+    @Override
+    public RestApiResponse findRestApi(RestApiRequest request) {
+        logger.debug("Finding REST API endpoints for repository: {}, methods: {}", 
+                request.getRepositoryName(), request.getHttpMethods());
+        
+        StringBuilder urlBuilder = new StringBuilder("/api/v1/indexer/");
+        urlBuilder.append(request.getRepositoryName()).append("/rest-api?types=");
+        
+        if (request.getHttpMethods() != null && !request.getHttpMethods().isEmpty()) {
+            urlBuilder.append(String.join(",", request.getHttpMethods()));
+        }
+        
+        if (request.getBranch() != null && !request.getBranch().isEmpty()) {
+            urlBuilder.append("&branch=").append(request.getBranch());
+        }
+        
+        if (request.getPackageName() != null && !request.getPackageName().isEmpty()) {
+            urlBuilder.append("&packageName=").append(request.getPackageName());
+        }
+
+        String url = urlBuilder.toString();
+
+        try {
+            RestApiResponse response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .body(RestApiResponse.class);
+
+            if (response == null) {
+                throw new IndexerClientException("Received null response from Indexer REST API endpoint");
+            }
+
+            logger.debug("Indexer REST API results: {} total", response.getTotalResults());
+            return response;
+        } catch (ResourceAccessException e) {
+            throw handleResourceAccessException(e);
+        } catch (RestClientException e) {
+            String message = "Failed to deserialize response from Indexer REST API endpoint: " + e.getMessage();
             logger.error(message, e);
             throw new IndexerClientException(message, e);
         }

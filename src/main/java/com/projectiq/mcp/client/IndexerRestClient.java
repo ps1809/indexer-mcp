@@ -8,6 +8,8 @@ import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
 import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 import com.projectiq.mcp.client.dto.SearchCodeRequest;
 import com.projectiq.mcp.client.dto.SearchCodeResponse;
+import com.projectiq.mcp.client.dto.RestApiRequest;
+import com.projectiq.mcp.client.dto.RestApiResponse;
 import com.projectiq.mcp.client.dto.SpringComponentRequest;
 import com.projectiq.mcp.client.dto.SpringComponentResponse;
 
@@ -62,4 +64,12 @@ public interface IndexerRestClient {
      * @return spring component response with matching components
      */
     SpringComponentResponse findSpringComponent(SpringComponentRequest request);
+
+    /**
+     * Finds REST API endpoints in the Indexer.
+     *
+     * @param request the REST API request containing search criteria
+     * @return REST API response with matching endpoints
+     */
+    RestApiResponse findRestApi(RestApiRequest request);
 }
