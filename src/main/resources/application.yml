@@ -34,3 +34,10 @@ spring.ai:
       version: 1.0.0
       type: SYNC
       stdio: true
+
+# ProjectIQ Indexer configuration
+projectiq:
+  indexer:
+    base-url: http://localhost:8081
+    connect-timeout: 5000
+    read-timeout: 30000

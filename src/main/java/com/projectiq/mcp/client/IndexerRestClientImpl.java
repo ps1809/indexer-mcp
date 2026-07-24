@@ -1,0 +1,123 @@
+package com.projectiq.mcp.client;
+
+import com.projectiq.mcp.client.dto.IndexerHealthResponse;
+import com.projectiq.mcp.client.exception.IndexerClientException;
+import com.projectiq.mcp.client.exception.IndexerConnectionException;
+import com.projectiq.mcp.client.exception.IndexerHttpException;
+import com.projectiq.mcp.client.exception.IndexerTimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+
+/**
+ * Implementation of {@link IndexerRestClient} using Spring's RestClient.
+ * Handles HTTP communication with ProjectIQ Indexer including error handling.
+ */
+@Component
+public class IndexerRestClientImpl implements IndexerRestClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndexerRestClientImpl.class);
+
+    private final RestClient restClient;
+
+    public IndexerRestClientImpl(RestClient indexerRestClient) {
+        this.restClient = indexerRestClient;
+    }
+
+    @Override
+    public IndexerHealthResponse checkHealth() {
+        logger.debug("Checking Indexer health status");
+        try {
+            IndexerHealthResponse response = restClient.get()
+                    .uri("/actuator/health")
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .body(IndexerHealthResponse.class);
+
+            if (response == null) {
+                throw new IndexerClientException("Received null response from Indexer health endpoint");
+            }
+
+            logger.debug("Indexer health response: {}", response);
+            return response;
+        } catch (ResourceAccessException e) {
+            throw handleResourceAccessException(e);
+        } catch (RestClientException e) {
+            String message = "Failed to deserialize response from Indexer: " + e.getMessage();
+            logger.error(message, e);
+            throw new IndexerClientException(message, e);
+        }
+    }
+
+    @Override
+    public boolean isReachable() {
+        logger.debug("Checking if Indexer is reachable");
+        try {
+            restClient.get()
+                    .uri("/actuator/health")
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .toEntity(String.class);
+
+            logger.debug("Indexer is reachable");
+            return true;
+        } catch (ResourceAccessException e) {
+            logger.warn("Indexer is not reachable: {}", e.getMessage());
+            return false;
+        } catch (RestClientException e) {
+            logger.warn("Indexer communication error during reachability check: {}", e.getMessage());
+            return false;
+        } catch (IndexerClientException e) {
+            logger.warn("Indexer returned error during reachability check: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    private void handleClientError(HttpRequest request, ClientHttpResponse response) throws IOException {
+        int statusCode = response.getStatusCode().value();
+        String body = new String(response.getBody().readAllBytes());
+        String message = String.format("Indexer returned client error: HTTP %d - %s", statusCode, body);
+        logger.warn(message);
+        throw new IndexerHttpException(message, statusCode);
+    }
+
+    private void handleServerError(HttpRequest request, ClientHttpResponse response) throws IOException {
+        int statusCode = response.getStatusCode().value();
+        String body = new String(response.getBody().readAllBytes());
+        String message = String.format("Indexer returned server error: HTTP %d - %s", statusCode, body);
+        logger.error(message);
+        throw new IndexerHttpException(message, statusCode);
+    }
+
+    private IndexerClientException handleResourceAccessException(ResourceAccessException e) {
+        Throwable cause = e.getCause();
+
+        if (cause instanceof SocketTimeoutException) {
+            String message = "Connection to Indexer timed out";
+            logger.error(message, e);
+            return new IndexerTimeoutException(message, e);
+        }
+
+        if (cause instanceof ConnectException) {
+            String message = "Connection to Indexer refused";
+            logger.error(message, e);
+            return new IndexerConnectionException(message, e);
+        }
+
+        String message = "Failed to communicate with Indexer: " + e.getMessage();
+        logger.error(message, e);
+        return new IndexerClientException(message, e);
+    }
+}
