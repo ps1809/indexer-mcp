@@ -1,5 +1,6 @@
 package com.projectiq.mcp.config;
 
+import com.projectiq.mcp.tools.AnalyzeImpactTool;
 import com.projectiq.mcp.tools.AnalyzeTaskTool;
 import com.projectiq.mcp.tools.AssembleContextTool;
 import com.projectiq.mcp.tools.BuildContextTool;
@@ -42,6 +43,7 @@ public class McpServerConfig {
      * @param listRelatedFilesTool the list related files tool
      * @param buildContextTool the build context tool
      * @param analyzeTaskTool the task analysis tool
+     * @param analyzeImpactTool the impact analysis tool
      * @param assembleContextTool the context assembly tool
      * @param developmentContextTool the development context tool
      * @param promptContextTool the prompt context tool
@@ -61,6 +63,7 @@ public class McpServerConfig {
             ListRelatedFilesTool listRelatedFilesTool,
             BuildContextTool buildContextTool,
             AnalyzeTaskTool analyzeTaskTool,
+            AnalyzeImpactTool analyzeImpactTool,
             AssembleContextTool assembleContextTool,
             DevelopmentContextTool developmentContextTool,
             PromptContextTool promptContextTool) {
@@ -78,6 +81,7 @@ public class McpServerConfig {
                         listRelatedFilesTool,
                         buildContextTool,
                         analyzeTaskTool,
+                        analyzeImpactTool,
                         assembleContextTool,
                         developmentContextTool,
                         promptContextTool
