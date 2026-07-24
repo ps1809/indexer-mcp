@@ -1,5 +1,8 @@
 package com.projectiq.mcp.orchestration.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Represents a single step within a workflow execution.
  * Each step has a name, description, execution status, and optional result or error.
@@ -14,7 +17,11 @@ public class WorkflowStep {
     private String error;
     private long durationMillis;
 
-    public WorkflowStep(int order, String name, String description) {
+    @JsonCreator
+    public WorkflowStep(
+            @JsonProperty("order") int order,
+            @JsonProperty("name") String name,
+            @JsonProperty("description") String description) {
         this.order = order;
         this.name = name;
         this.description = description;

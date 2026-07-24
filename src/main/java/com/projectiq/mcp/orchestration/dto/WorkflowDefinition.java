@@ -1,5 +1,8 @@
 package com.projectiq.mcp.orchestration.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,10 +18,15 @@ public class WorkflowDefinition {
     private final List<WorkflowStep> steps;
     private final String reasoning;
 
-    public WorkflowDefinition(WorkflowType workflowType, String originalRequest, List<WorkflowStep> steps, String reasoning) {
+    @JsonCreator
+    public WorkflowDefinition(
+            @JsonProperty("workflowType") WorkflowType workflowType,
+            @JsonProperty("originalRequest") String originalRequest,
+            @JsonProperty("steps") List<WorkflowStep> steps,
+            @JsonProperty("reasoning") String reasoning) {
         this.workflowType = workflowType;
         this.originalRequest = originalRequest;
-        this.steps = Collections.unmodifiableList(new ArrayList<>(steps));
+        this.steps = steps != null ? Collections.unmodifiableList(new ArrayList<>(steps)) : List.of();
         this.reasoning = reasoning;
     }
 

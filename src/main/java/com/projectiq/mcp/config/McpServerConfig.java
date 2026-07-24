@@ -6,6 +6,7 @@ import com.projectiq.mcp.tools.ArchitectureInsightsTool;
 import com.projectiq.mcp.tools.AssembleContextTool;
 import com.projectiq.mcp.tools.BuildContextTool;
 import com.projectiq.mcp.tools.DevelopmentContextTool;
+import com.projectiq.mcp.tools.ExecuteWorkflowTool;
 import com.projectiq.mcp.tools.FindClassTool;
 import com.projectiq.mcp.tools.FindDependencyTool;
 import com.projectiq.mcp.tools.FindMethodTool;
@@ -59,6 +60,7 @@ public class McpServerConfig {
      * @param promptContextTool the prompt context tool
      * @param implementationPlanTool the implementation plan tool
      * @param testImpactAnalysisTool the test impact analysis tool
+     * @param executeWorkflowTool the workflow execution tool
      * @param orchestrateWorkflowTool the workflow orchestration tool
      * @param refactoringAssistantTool the refactoring assistant tool
      * @return ToolCallbackProvider containing all registered tools
@@ -87,6 +89,7 @@ public class McpServerConfig {
             ImplementationPlanTool implementationPlanTool,
             TestImpactAnalysisTool testImpactAnalysisTool,
             RefactoringAssistantTool refactoringAssistantTool,
+            ExecuteWorkflowTool executeWorkflowTool,
             OrchestrateWorkflowTool orchestrateWorkflowTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
@@ -112,6 +115,7 @@ public class McpServerConfig {
                         implementationPlanTool,
                         testImpactAnalysisTool,
                         refactoringAssistantTool,
+                        executeWorkflowTool,
                         orchestrateWorkflowTool
                 )
                 .build();
