@@ -2,6 +2,7 @@ package com.projectiq.mcp.config;
 
 import com.projectiq.mcp.tools.AnalyzeImpactTool;
 import com.projectiq.mcp.tools.AnalyzeTaskTool;
+import com.projectiq.mcp.tools.ArchitectureInsightsTool;
 import com.projectiq.mcp.tools.AssembleContextTool;
 import com.projectiq.mcp.tools.BuildContextTool;
 import com.projectiq.mcp.tools.DevelopmentContextTool;
@@ -42,6 +43,7 @@ public class McpServerConfig {
      * @param findMethodTool the find method tool
      * @param listRelatedFilesTool the list related files tool
      * @param buildContextTool the build context tool
+     * @param architectureInsightsTool the architecture insights tool
      * @param analyzeTaskTool the task analysis tool
      * @param analyzeImpactTool the impact analysis tool
      * @param assembleContextTool the context assembly tool
@@ -62,6 +64,7 @@ public class McpServerConfig {
             FindMethodTool findMethodTool,
             ListRelatedFilesTool listRelatedFilesTool,
             BuildContextTool buildContextTool,
+            ArchitectureInsightsTool architectureInsightsTool,
             AnalyzeTaskTool analyzeTaskTool,
             AnalyzeImpactTool analyzeImpactTool,
             AssembleContextTool assembleContextTool,
@@ -80,6 +83,7 @@ public class McpServerConfig {
                         findMethodTool,
                         listRelatedFilesTool,
                         buildContextTool,
+                        architectureInsightsTool,
                         analyzeTaskTool,
                         analyzeImpactTool,
                         assembleContextTool,
