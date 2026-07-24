@@ -14,6 +14,7 @@ import com.projectiq.mcp.tools.FindSpringComponentTool;
 import com.projectiq.mcp.tools.ListRelatedFilesTool;
 import com.projectiq.mcp.tools.PingTool;
 import com.projectiq.mcp.tools.PromptContextTool;
+import com.projectiq.mcp.tools.RepositoryConventionTool;
 import com.projectiq.mcp.tools.RepositoryHealthTool;
 import com.projectiq.mcp.tools.RepositoryStatisticsTool;
 import com.projectiq.mcp.tools.RepositorySummaryTool;
@@ -46,6 +47,7 @@ public class McpServerConfig {
      * @param buildContextTool the build context tool
      * @param architectureInsightsTool the architecture insights tool
      * @param analyzeTaskTool the task analysis tool
+     * @param repositoryConventionTool the repository convention tool
      * @param repositoryHealthTool the repository health tool
      * @param analyzeImpactTool the impact analysis tool
      * @param assembleContextTool the context assembly tool
@@ -72,6 +74,7 @@ public class McpServerConfig {
             AssembleContextTool assembleContextTool,
             DevelopmentContextTool developmentContextTool,
             PromptContextTool promptContextTool,
+            RepositoryConventionTool repositoryConventionTool,
             RepositoryHealthTool repositoryHealthTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
@@ -92,6 +95,7 @@ public class McpServerConfig {
                         assembleContextTool,
                         developmentContextTool,
                         promptContextTool,
+                        repositoryConventionTool,
                         repositoryHealthTool
                 )
                 .build();
