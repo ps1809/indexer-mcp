@@ -4,6 +4,7 @@ import com.projectiq.mcp.tools.AnalyzeImpactTool;
 import com.projectiq.mcp.tools.AnalyzeTaskTool;
 import com.projectiq.mcp.tools.ArchitectureInsightsTool;
 import com.projectiq.mcp.tools.AssembleContextTool;
+import com.projectiq.mcp.tools.BuildContextPipelineTool;
 import com.projectiq.mcp.tools.BuildContextTool;
 import com.projectiq.mcp.tools.DevelopmentContextTool;
 import com.projectiq.mcp.tools.ExecuteWorkflowTool;
@@ -63,6 +64,7 @@ public class McpServerConfig {
      * @param executeWorkflowTool the workflow execution tool
      * @param orchestrateWorkflowTool the workflow orchestration tool
      * @param refactoringAssistantTool the refactoring assistant tool
+     * @param buildContextPipelineTool the build context pipeline tool
      * @return ToolCallbackProvider containing all registered tools
      */
     @Bean
@@ -78,6 +80,7 @@ public class McpServerConfig {
             FindMethodTool findMethodTool,
             ListRelatedFilesTool listRelatedFilesTool,
             BuildContextTool buildContextTool,
+            BuildContextPipelineTool buildContextPipelineTool,
             ArchitectureInsightsTool architectureInsightsTool,
             AnalyzeTaskTool analyzeTaskTool,
             AnalyzeImpactTool analyzeImpactTool,
@@ -104,6 +107,7 @@ public class McpServerConfig {
                         findMethodTool,
                         listRelatedFilesTool,
                         buildContextTool,
+                        buildContextPipelineTool,
                         architectureInsightsTool,
                         analyzeTaskTool,
                         analyzeImpactTool,
