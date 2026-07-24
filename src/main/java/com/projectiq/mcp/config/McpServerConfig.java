@@ -1,6 +1,7 @@
 package com.projectiq.mcp.config;
 
 import com.projectiq.mcp.tools.AnalyzeImpactTool;
+import com.projectiq.mcp.tools.AnalyzeRepositoryEvolutionTool;
 import com.projectiq.mcp.tools.AnalyzeTaskTool;
 import com.projectiq.mcp.tools.ArchitectureInsightsTool;
 import com.projectiq.mcp.tools.AssembleContextTool;
@@ -87,6 +88,7 @@ public class McpServerConfig {
      * @param resumeDevelopmentSessionTool the resume development session tool
      * @param completeDevelopmentSessionTool the complete development session tool
      * @param assessExecutionReadinessTool the execution readiness tool
+     * @param analyzeRepositoryEvolutionTool the repository evolution analysis tool
      * @param predictDependencyChangeTool the predict dependency change tool
      * @param executeEndToEndWorkflowTool the end-to-end integration workflow tool
      * @param exportAgentHandoffTool the export agent handoff tool
@@ -110,6 +112,7 @@ public class McpServerConfig {
             ArchitectureInsightsTool architectureInsightsTool,
             AnalyzeTaskTool analyzeTaskTool,
             AnalyzeImpactTool analyzeImpactTool,
+            AnalyzeRepositoryEvolutionTool analyzeRepositoryEvolutionTool,
             AssembleContextTool assembleContextTool,
             DevelopmentContextTool developmentContextTool,
             PromptContextTool promptContextTool,
@@ -150,6 +153,7 @@ public class McpServerConfig {
                         architectureInsightsTool,
                         analyzeTaskTool,
                         analyzeImpactTool,
+                        analyzeRepositoryEvolutionTool,
                         assembleContextTool,
                         developmentContextTool,
                         promptContextTool,
