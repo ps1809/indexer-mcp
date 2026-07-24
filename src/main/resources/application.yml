@@ -1,22 +1,38 @@
+# =============================================================================
+# ProjectIQ MCP Server Configuration
+# =============================================================================
+# This is a standalone MCP (Model Context Protocol) server that exposes
+# ProjectIQ Indexer capabilities as MCP tools for AI coding agents (like Cline).
+# =============================================================================
+
+# Application identity
 spring:
   application:
     name: projectiq-mcp-server
+
+  # Web application type - must be 'servlet' for MCP WebMVC transport
   main:
     web-application-type: servlet
 
+# HTTP server configuration
 server:
   port: 8080
 
-# Logging configuration
+# =============================================================================
+# Logging Configuration
+# =============================================================================
 logging:
   level:
     root: INFO
-    com.projectiq.mcp: DEBUG
-    org.springframework.ai: DEBUG
+    com.projectiq.mcp: DEBUG          # Set to DEBUG for detailed MCP tool logging
+    org.springframework.ai: DEBUG     # Set to DEBUG for MCP framework logging
   pattern:
+    # Includes requestId from MDC for request correlation tracing
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{requestId:-N/A}] - %msg%n"
 
-# Actuator configuration
+# =============================================================================
+# Actuator Configuration
+# =============================================================================
 management:
   endpoints:
     web:
@@ -26,24 +42,36 @@ management:
     health:
       show-details: always
 
-# MCP Server configuration
+# =============================================================================
+# Spring AI MCP Server Configuration
+# =============================================================================
 spring.ai:
   mcp:
     server:
       name: projectiq-mcp-server
       version: 1.0.0
-      type: SYNC
-      stdio: true
+      type: SYNC              # Synchronous tool execution
+      stdio: true             # Enable stdio transport for MCP communication
 
-# ProjectIQ Indexer configuration
+# =============================================================================
+# ProjectIQ Indexer Connection Configuration
+# =============================================================================
 projectiq:
   indexer:
+    # Base URL of the ProjectIQ Indexer REST API
     base-url: http://localhost:8081
+    # Connection timeout in milliseconds
     connect-timeout: 5000
+    # Read timeout in milliseconds (how long to wait for a response)
     read-timeout: 30000
 
-  # Response cache configuration
+  # ===========================================================================
+  # Response Cache Configuration
+  # ===========================================================================
   cache:
+    # Enable or disable response caching (caches Indexer API responses)
     enabled: true
+    # Time-to-live for cached entries in seconds (default: 5 minutes)
     ttl-seconds: 300
+    # Maximum number of cached entries before eviction kicks in
     max-size: 1000
