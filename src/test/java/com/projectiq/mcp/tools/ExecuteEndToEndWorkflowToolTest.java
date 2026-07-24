@@ -2,17 +2,6 @@ package com.projectiq.mcp.tools;
 
 import com.projectiq.mcp.integration.dto.EndToEndWorkflowResponse;
 import com.projectiq.mcp.integration.service.IntegrationOrchestratorService;
-import com.projectiq.mcp.analysis.dto.TaskAnalysisResponse;
-import com.projectiq.mcp.analysis.dto.TaskType;
-import com.projectiq.mcp.analysis.dto.ConfidenceLevel;
-import com.projectiq.mcp.orchestration.dto.WorkflowResult;
-import com.projectiq.mcp.pipeline.dto.ContextPackage;
-import com.projectiq.mcp.planning.dto.ExecutionPlanResponse;
-import com.projectiq.mcp.readiness.dto.ReadinessLevel;
-import com.projectiq.mcp.readiness.dto.ReadinessReport;
-import com.projectiq.mcp.recommendation.dto.RecommendationReport;
-import com.projectiq.mcp.session.dto.DevelopmentSession;
-import com.projectiq.mcp.validation.dto.ValidationReport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +26,7 @@ class ExecuteEndToEndWorkflowToolTest {
     }
 
     @Test
-    void testApply_Success() {
-        // Arrange
+    void testExecuteEndToEndWorkflow_Success() {
         String request = "Add new feature";
         String repositoryName = "my-project";
         String branch = "main";
@@ -52,19 +40,15 @@ class ExecuteEndToEndWorkflowToolTest {
         when(integrationOrchestratorService.executeEndToEndWorkflow(request, repositoryName, branch))
                 .thenReturn(expectedResponse);
 
-        // Act
-        EndToEndWorkflowResponse result = tool.apply(
-                new ExecuteEndToEndWorkflowTool.Request(request, repositoryName, branch));
+        EndToEndWorkflowResponse result = tool.executeEndToEndWorkflow(request, repositoryName, branch);
 
-        // Assert
         assertNotNull(result);
         assertEquals("COMPLETED", result.getOverallStatus());
         assertEquals("wf-001", result.getWorkflowId());
     }
 
     @Test
-    void testApply_DefaultBranch() {
-        // Arrange
+    void testExecuteEndToEndWorkflow_DefaultBranch() {
         String request = "Fix bug";
         String repositoryName = "my-project";
 
@@ -76,36 +60,30 @@ class ExecuteEndToEndWorkflowToolTest {
         when(integrationOrchestratorService.executeEndToEndWorkflow(request, repositoryName, null))
                 .thenReturn(expectedResponse);
 
-        // Act - using constructor without branch
-        EndToEndWorkflowResponse result = tool.apply(
-                new ExecuteEndToEndWorkflowTool.Request(request, repositoryName));
+        EndToEndWorkflowResponse result = tool.executeEndToEndWorkflow(request, repositoryName, null);
 
-        // Assert
         assertNotNull(result);
         assertEquals("COMPLETED", result.getOverallStatus());
     }
 
     @Test
-    void testApply_EmptyRequest() {
-        EndToEndWorkflowResponse result = tool.apply(
-                new ExecuteEndToEndWorkflowTool.Request("", "repo", "main"));
+    void testExecuteEndToEndWorkflow_EmptyRequest() {
+        EndToEndWorkflowResponse result = tool.executeEndToEndWorkflow("", "repo", "main");
         assertNotNull(result);
         assertEquals("FAILED", result.getOverallStatus());
         assertTrue(result.hasErrors());
     }
 
     @Test
-    void testApply_EmptyRepository() {
-        EndToEndWorkflowResponse result = tool.apply(
-                new ExecuteEndToEndWorkflowTool.Request("request", "", "main"));
+    void testExecuteEndToEndWorkflow_EmptyRepository() {
+        EndToEndWorkflowResponse result = tool.executeEndToEndWorkflow("request", "", "main");
         assertNotNull(result);
         assertEquals("FAILED", result.getOverallStatus());
         assertTrue(result.hasErrors());
     }
 
     @Test
-    void testApply_NullBranch() {
-        // Branch can be null - should use default
+    void testExecuteEndToEndWorkflow_NullBranch() {
         EndToEndWorkflowResponse expectedResponse = new EndToEndWorkflowResponse()
                 .withOriginalRequest("request")
                 .withRepositoryName("repo");
@@ -114,24 +92,19 @@ class ExecuteEndToEndWorkflowToolTest {
         when(integrationOrchestratorService.executeEndToEndWorkflow("request", "repo", null))
                 .thenReturn(expectedResponse);
 
-        EndToEndWorkflowResponse result = tool.apply(
-                new ExecuteEndToEndWorkflowTool.Request("request", "repo", null));
+        EndToEndWorkflowResponse result = tool.executeEndToEndWorkflow("request", "repo", null);
         assertNotNull(result);
         assertEquals("COMPLETED", result.getOverallStatus());
     }
 
     @Test
-    void testApply_IntegrationServiceThrowsException() {
-        // Arrange
+    void testExecuteEndToEndWorkflow_IntegrationServiceThrowsException() {
         when(integrationOrchestratorService.executeEndToEndWorkflow(
                 anyString(), anyString(), anyString()))
                 .thenThrow(new RuntimeException("Unexpected error"));
 
-        // Act
-        EndToEndWorkflowResponse result = tool.apply(
-                new ExecuteEndToEndWorkflowTool.Request("request", "repo", "main"));
+        EndToEndWorkflowResponse result = tool.executeEndToEndWorkflow("request", "repo", "main");
 
-        // Assert
         assertNotNull(result);
         assertEquals("FAILED", result.getOverallStatus());
         assertTrue(result.hasErrors());
@@ -139,17 +112,13 @@ class ExecuteEndToEndWorkflowToolTest {
     }
 
     @Test
-    void testApply_IntegrationServiceThrowsIllegalArgument() {
-        // Arrange
+    void testExecuteEndToEndWorkflow_IntegrationServiceThrowsIllegalArgument() {
         when(integrationOrchestratorService.executeEndToEndWorkflow(
                 anyString(), anyString(), anyString()))
                 .thenThrow(new IllegalArgumentException("Invalid repository"));
 
-        // Act
-        EndToEndWorkflowResponse result = tool.apply(
-                new ExecuteEndToEndWorkflowTool.Request("request", "repo", "main"));
+        EndToEndWorkflowResponse result = tool.executeEndToEndWorkflow("request", "repo", "main");
 
-        // Assert
         assertNotNull(result);
         assertEquals("FAILED", result.getOverallStatus());
         assertTrue(result.hasErrors());
@@ -157,32 +126,18 @@ class ExecuteEndToEndWorkflowToolTest {
     }
 
     @Test
-    void testRequestRecord_ValidConstruction() {
-        ExecuteEndToEndWorkflowTool.Request req =
-                new ExecuteEndToEndWorkflowTool.Request("Test request", "test-repo", "develop");
-        assertEquals("Test request", req.request());
-        assertEquals("test-repo", req.repositoryName());
-        assertEquals("develop", req.branch());
+    void testExecuteEndToEndWorkflow_NullRequest() {
+        EndToEndWorkflowResponse result = tool.executeEndToEndWorkflow(null, "repo", "main");
+        assertNotNull(result);
+        assertEquals("FAILED", result.getOverallStatus());
+        assertTrue(result.hasErrors());
     }
 
     @Test
-    void testRequestRecord_NullRequest() {
-        assertThrows(IllegalArgumentException.class, () ->
-                new ExecuteEndToEndWorkflowTool.Request(null, "repo", "main"));
-    }
-
-    @Test
-    void testRequestRecord_NullRepository() {
-        assertThrows(IllegalArgumentException.class, () ->
-                new ExecuteEndToEndWorkflowTool.Request("request", null, "main"));
-    }
-
-    @Test
-    void testRequestRecord_DefaultBranch() {
-        ExecuteEndToEndWorkflowTool.Request req =
-                new ExecuteEndToEndWorkflowTool.Request("Test request", "test-repo");
-        assertEquals("Test request", req.request());
-        assertEquals("test-repo", req.repositoryName());
-        assertNull(req.branch());
+    void testExecuteEndToEndWorkflow_NullRepository() {
+        EndToEndWorkflowResponse result = tool.executeEndToEndWorkflow("request", null, "main");
+        assertNotNull(result);
+        assertEquals("FAILED", result.getOverallStatus());
+        assertTrue(result.hasErrors());
     }
 }

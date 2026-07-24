@@ -4,9 +4,9 @@ import com.projectiq.mcp.integration.dto.EndToEndWorkflowResponse;
 import com.projectiq.mcp.integration.service.IntegrationOrchestratorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
-
-import java.util.function.Function;
 
 /**
  * MCP Tool that executes the complete end-to-end development workflow,
@@ -27,7 +27,7 @@ import java.util.function.Function;
  * </ol>
  */
 @Component
-public class ExecuteEndToEndWorkflowTool implements Function<ExecuteEndToEndWorkflowTool.Request, EndToEndWorkflowResponse> {
+public class ExecuteEndToEndWorkflowTool {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecuteEndToEndWorkflowTool.class);
 
@@ -37,19 +37,37 @@ public class ExecuteEndToEndWorkflowTool implements Function<ExecuteEndToEndWork
         this.integrationOrchestratorService = integrationOrchestratorService;
     }
 
-    @Override
-    public EndToEndWorkflowResponse apply(Request request) {
-        logger.info("ExecuteEndToEndWorkflowTool called with request: {}, repository: {}",
-                request.request(), request.repositoryName());
+    /**
+     * Executes the complete end-to-end development workflow.
+     * Coordinates task analysis, workflow orchestration, context assembly,
+     * execution planning, validation, recommendations, readiness assessment,
+     * session management, and agent handoff.
+     *
+     * @param request        the developer request/description
+     * @param repositoryName the repository name
+     * @param branch         the branch name (optional)
+     * @return the end-to-end workflow response
+     */
+    @Tool(description = "Execute the complete end-to-end development workflow. " +
+            "Coordinates task analysis, workflow orchestration, context assembly, " +
+            "execution planning, validation, recommendations, readiness assessment, " +
+            "session management, and agent handoff in a single orchestrated pipeline.")
+    public EndToEndWorkflowResponse executeEndToEndWorkflow(
+            @ToolParam(description = "The developer request or task description") String request,
+            @ToolParam(description = "The repository name") String repositoryName,
+            @ToolParam(description = "The branch name (optional)", required = false) String branch) {
 
-        if (request.request() == null || request.request().trim().isEmpty()) {
+        logger.info("ExecuteEndToEndWorkflowTool called with request: {}, repository: {}",
+                request, repositoryName);
+
+        if (request == null || request.trim().isEmpty()) {
             EndToEndWorkflowResponse errorResponse = new EndToEndWorkflowResponse();
             errorResponse.setOverallStatus("FAILED");
             errorResponse.addError("Developer request cannot be null or empty");
             return errorResponse;
         }
 
-        if (request.repositoryName() == null || request.repositoryName().trim().isEmpty()) {
+        if (repositoryName == null || repositoryName.trim().isEmpty()) {
             EndToEndWorkflowResponse errorResponse = new EndToEndWorkflowResponse();
             errorResponse.setOverallStatus("FAILED");
             errorResponse.addError("Repository name cannot be null or empty");
@@ -58,9 +76,7 @@ public class ExecuteEndToEndWorkflowTool implements Function<ExecuteEndToEndWork
 
         try {
             return integrationOrchestratorService.executeEndToEndWorkflow(
-                    request.request(),
-                    request.repositoryName(),
-                    request.branch());
+                    request, repositoryName, branch);
         } catch (IllegalArgumentException e) {
             EndToEndWorkflowResponse errorResponse = new EndToEndWorkflowResponse();
             errorResponse.setOverallStatus("FAILED");
@@ -72,25 +88,6 @@ public class ExecuteEndToEndWorkflowTool implements Function<ExecuteEndToEndWork
             errorResponse.setOverallStatus("FAILED");
             errorResponse.addError("Unexpected error: " + e.getMessage());
             return errorResponse;
-        }
-    }
-
-    /**
-     * Request record for the ExecuteEndToEndWorkflow tool.
-     */
-    public record Request(String request, String repositoryName, String branch) {
-
-        public Request {
-            if (request == null) {
-                throw new IllegalArgumentException("request must not be null");
-            }
-            if (repositoryName == null) {
-                throw new IllegalArgumentException("repositoryName must not be null");
-            }
-        }
-
-        public Request(String request, String repositoryName) {
-            this(request, repositoryName, null);
         }
     }
 }
