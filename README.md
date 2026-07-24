@@ -414,40 +414,130 @@ The server registers the following MCP tools for AI agent discovery:
 }
 ```
 
-## Intelligent Developer Workflow
+## Phase 3: Intelligent AI Agent Orchestration
 
-The Phase 2 tools can be chained together to form a complete deterministic workflow. The following sequence is recommended for AI coding agents:
+Phase 3 introduces a complete **AI Agent Orchestration Platform** that integrates all Phase 2 analysis services into a cohesive, deterministic workflow pipeline. This phase adds workflow orchestration, execution management, intelligent context pipelines, execution planning, validation, recommendations, readiness assessment, development session management, and AI agent handoff capabilities.
 
-1. **`analyze_task`** — Understand the request (task type, entities, complexity)
-2. **`assemble_context`** — Gather relevant repository context
-3. **`analyze_impact`** — Evaluate the impact of the proposed change
-4. **`implementation_plan`** — Generate a structured implementation plan
-5. **`test_impact_analysis`** — Identify affected tests and testing scope
-6. **`refactoring_assistant`** — Get refactoring recommendations if needed
-7. **`architecture_insights`** — Understand the architecture for informed decisions
-8. **`repository_health`** — Assess repository health before making changes
-9. **`repository_conventions`** — Discover conventions to maintain consistency
+### Phase 3 Architecture
 
-Each tool provides deterministic, structured JSON responses that guide the AI agent through the development process without generating or modifying code.
+```
+Developer Request
+         ↓
+  [Task Analysis] ──→ Task type, complexity, entities
+         ↓
+  [Workflow Orchestration] ──→ Deterministic workflow execution
+         ↓
+  [Context Pipeline] ──→ Prioritized, deduplicated context
+         ↓
+  [Execution Planning] ──→ Dependency-ordered execution roadmap
+         ↓
+  [Workflow Validation] ──→ 8-category validation pipeline
+         ↓
+  [Recommendation Engine] ──→ Prioritized recommendations
+         ↓
+  [Readiness Assessment] ──→ Implementation readiness score
+         ↓
+  [Development Session] ──→ Session lifecycle management
+         ↓
+  [Agent Handoff] ──→ Self-contained handoff package
+         ↓
+  AI Coding Agent
+```
 
-### Example Workflow: Complete Feature Implementation
+### Phase 3 Services
 
-1. **Task Analysis**: `analyze_task("Add pagination to UserController", "my-project")`
-   - → Returns: task type (NEW_FEATURE), entities, complexity (MEDIUM)
-2. **Context Assembly**: `assemble_context("Add pagination to UserController", "my-project")`
-   - → Returns: related files, classes, methods, dependencies
-3. **Impact Analysis**: `analyze_impact("Add pagination to UserController", "my-project")`
-   - → Returns: scope (MODERATE), risk (LOW), components affected
-4. **Implementation Plan**: `implementation_plan("Add pagination to UserController", "my-project")`
-   - → Returns: ordered steps, files to modify, validation steps
-5. **Test Impact**: `test_impact_analysis("Add pagination to UserController", "my-project")`
-   - → Returns: affected tests, missing tests, testing effort
-6. **Architecture Insights**: `architecture_insights("my-project")`
-   - → Returns: layered architecture, dependency flows
-7. **Repository Health**: `repository_health("my-project")`
-   - → Returns: coverage gaps, code quality issues
-8. **Repository Conventions**: `repository_conventions("my-project")`
-   - → Returns: naming patterns, code style conventions
+| Service | Description |
+|---------|-------------|
+| `WorkflowOrchestratorService` | Orchestrates intelligent workflows by coordinating existing repository intelligence services into a single deterministic execution pipeline |
+| `WorkflowExecutionService` | Manages workflow execution state, progress tracking, dependency validation, and execution timeline |
+| `IntelligentContextPipelineService` | Collects, deduplicates, prioritizes, and filters repository intelligence into an optimized AI-ready context package |
+| `ExecutionPlanningService` | Generates deterministic execution roadmaps with dependency validation, topological ordering, risk assessment, and effort estimation |
+| `WorkflowValidationService` | Validates workflows across 8 categories: Workflow, Repository, Dependency, Architecture, Convention, Test Coverage, Risk, and Execution Readiness |
+| `RecommendationEngineService` | Generates deterministic, prioritized recommendations from workflow results, validation reports, and repository intelligence |
+| `ExecutionReadinessService` | Consolidates planning, validation, recommendations, and intelligence into a single readiness decision with implementation recommendation |
+| `DevelopmentSessionService` | Manages the complete lifecycle of AI-assisted development sessions with progress tracking and state preservation |
+| `AgentHandoffService` | Generates self-contained, integrity-verified handoff packages for seamless AI agent transitions |
+
+### Phase 3 MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `orchestrate_workflow` | Orchestrate a complete workflow from a developer request, coordinating all analysis services |
+| `execute_workflow` | Execute a workflow definition with progress tracking and dependency validation |
+| `build_context_pipeline` | Build an optimized, prioritized context pipeline from all repository intelligence sources |
+| `plan_execution` | Generate a deterministic execution roadmap with dependency-ordered tasks and risk assessment |
+| `validate_workflow` | Validate a workflow across 8 categories with readiness scoring and blocking issue detection |
+| `generate_recommendations` | Generate prioritized, deterministic recommendations from workflow analysis and repository intelligence |
+| `assess_execution_readiness` | Assess execution readiness with category-level scoring and final implementation recommendation |
+| `create_development_session` | Create a new development session for tracking workflow progress |
+| `get_development_session` | Load an existing development session by ID |
+| `resume_development_session` | Resume an interrupted development session |
+| `complete_development_session` | Complete a development session with final state |
+| `export_agent_handoff` | Export a self-contained handoff package for AI agent transition |
+| `import_agent_handoff` | Import a handoff package and restore development session state |
+| `execute_end_to_end_workflow` | Execute the complete end-to-end workflow integrating all Phase 3 services |
+
+### End-to-End Workflow
+
+The `execute_end_to_end_workflow` tool provides a single-call integration of all Phase 3 services:
+
+```json
+{
+  "name": "execute_end_to_end_workflow",
+  "arguments": {
+    "request": "Add pagination to UserController",
+    "repositoryName": "my-project",
+    "branch": "main"
+  }
+}
+```
+
+**Response includes all stages:**
+- Task Analysis results
+- Workflow Orchestration results
+- Context Package (prioritized, deduplicated)
+- Execution Plan (dependency-ordered tasks)
+- Validation Report (8-category validation)
+- Recommendation Report (prioritized recommendations)
+- Readiness Report (implementation readiness score)
+- Development Session (session tracking)
+- Agent Handoff Package (self-contained JSON for AI agent)
+
+### Development Session Lifecycle
+
+```
+CREATED → IN_PROGRESS → COMPLETED → ARCHIVED
+              ↑              |
+              └──────────────┘
+              (resume)
+```
+
+### Agent Handoff Package
+
+The handoff package is a self-contained JSON artifact containing:
+- Complete session state and workflow progress
+- Repository intelligence and context
+- Validation results and recommendations
+- Execution history (immutable)
+- Integrity hash (SHA-256) for corruption detection
+- Suggested next actions for the receiving agent
+
+### Intelligent Workflow Pipeline
+
+The complete Phase 3 pipeline follows this deterministic flow:
+
+1. **Developer Request** → Natural language development task
+2. **Task Analysis** → Classify task type, identify entities, estimate complexity
+3. **Workflow Generation** → Build deterministic workflow definition with ordered steps
+4. **Context Assembly** → Gather repository intelligence from all sources
+5. **Execution Planning** → Generate dependency-ordered execution roadmap
+6. **Workflow Validation** → Validate across 8 categories with readiness scoring
+7. **Recommendation Generation** → Generate prioritized, deterministic recommendations
+8. **Readiness Assessment** → Assess implementation readiness with final recommendation
+9. **Development Session** → Create and manage session lifecycle
+10. **Agent Handoff** → Export self-contained handoff package
+
+All stages are fully deterministic with no AI/LLM involvement. Each stage produces stable, repeatable results.
 
 ## Troubleshooting
 

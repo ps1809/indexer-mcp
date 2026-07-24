@@ -9,6 +9,9 @@ import com.projectiq.mcp.tools.BuildContextPipelineTool;
 import com.projectiq.mcp.tools.BuildContextTool;
 import com.projectiq.mcp.tools.CompleteDevelopmentSessionTool;
 import com.projectiq.mcp.tools.CreateDevelopmentSessionTool;
+import com.projectiq.mcp.tools.ExecuteEndToEndWorkflowTool;
+import com.projectiq.mcp.tools.ExportAgentHandoffTool;
+import com.projectiq.mcp.tools.ImportAgentHandoffTool;
 import com.projectiq.mcp.tools.DevelopmentContextTool;
 import com.projectiq.mcp.tools.ExecuteWorkflowTool;
 import com.projectiq.mcp.tools.FindClassTool;
@@ -81,6 +84,9 @@ public class McpServerConfig {
      * @param completeDevelopmentSessionTool the complete development session tool
      * @param assessExecutionReadinessTool the execution readiness tool
      * @param validateWorkflowTool the validate workflow tool
+     * @param executeEndToEndWorkflowTool the end-to-end integration workflow tool
+     * @param exportAgentHandoffTool the export agent handoff tool
+     * @param importAgentHandoffTool the import agent handoff tool
      * @return ToolCallbackProvider containing all registered tools
      */
     @Bean
@@ -117,7 +123,10 @@ public class McpServerConfig {
             CreateDevelopmentSessionTool createDevelopmentSessionTool,
             GetDevelopmentSessionTool getDevelopmentSessionTool,
             ResumeDevelopmentSessionTool resumeDevelopmentSessionTool,
-            CompleteDevelopmentSessionTool completeDevelopmentSessionTool) {
+            CompleteDevelopmentSessionTool completeDevelopmentSessionTool,
+            ExecuteEndToEndWorkflowTool executeEndToEndWorkflowTool,
+            ExportAgentHandoffTool exportAgentHandoffTool,
+            ImportAgentHandoffTool importAgentHandoffTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -152,7 +161,10 @@ public class McpServerConfig {
                         createDevelopmentSessionTool,
                         getDevelopmentSessionTool,
                         resumeDevelopmentSessionTool,
-                        completeDevelopmentSessionTool
+                        completeDevelopmentSessionTool,
+                        executeEndToEndWorkflowTool,
+                        exportAgentHandoffTool,
+                        importAgentHandoffTool
                 )
                 .build();
     }
