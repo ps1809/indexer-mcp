@@ -7,6 +7,8 @@ import com.projectiq.mcp.client.dto.DependencyResponse;
 import com.projectiq.mcp.client.dto.MethodRequest;
 import com.projectiq.mcp.client.dto.MethodResponse;
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
+import com.projectiq.mcp.client.dto.RelatedFileRequest;
+import com.projectiq.mcp.client.dto.RelatedFileResponse;
 import com.projectiq.mcp.client.dto.RepositoryStatsRequest;
 import com.projectiq.mcp.client.dto.RepositoryStatsResponse;
 import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
@@ -448,6 +450,51 @@ public class IndexerRestClientImpl implements IndexerRestClient {
             throw handleResourceAccessException(e);
         } catch (RestClientException e) {
             String message = "Failed to deserialize response from Indexer method endpoint: " + e.getMessage();
+            logger.error(message, e);
+            throw new IndexerClientException(message, e);
+        }
+    }
+
+    @Override
+    public RelatedFileResponse findRelatedFiles(RelatedFileRequest request) {
+        logger.debug("Finding related files for repository: {}, target: {}, type: {}", 
+                request.getRepositoryName(), request.getSearchTarget(), request.getTargetType());
+        
+        StringBuilder urlBuilder = new StringBuilder("/api/v1/indexer/");
+        urlBuilder.append(request.getRepositoryName()).append("/related-files?target=");
+        
+        if (request.getSearchTarget() != null && !request.getSearchTarget().isEmpty()) {
+            urlBuilder.append(request.getSearchTarget());
+        }
+        
+        if (request.getTargetType() != null) {
+            urlBuilder.append("&type=").append(request.getTargetType().name());
+        }
+        
+        if (request.getBranch() != null && !request.getBranch().isEmpty()) {
+            urlBuilder.append("&branch=").append(request.getBranch());
+        }
+
+        String url = urlBuilder.toString();
+
+        try {
+            RelatedFileResponse response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .body(RelatedFileResponse.class);
+
+            if (response == null) {
+                throw new IndexerClientException("Received null response from Indexer related-files endpoint");
+            }
+
+            logger.debug("Indexer related file results: {} total", response.getTotalResults());
+            return response;
+        } catch (ResourceAccessException e) {
+            throw handleResourceAccessException(e);
+        } catch (RestClientException e) {
+            String message = "Failed to deserialize response from Indexer related-files endpoint: " + e.getMessage();
             logger.error(message, e);
             throw new IndexerClientException(message, e);
         }

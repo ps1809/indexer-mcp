@@ -14,6 +14,8 @@ import com.projectiq.mcp.client.dto.DependencyRequest;
 import com.projectiq.mcp.client.dto.DependencyResponse;
 import com.projectiq.mcp.client.dto.MethodRequest;
 import com.projectiq.mcp.client.dto.MethodResponse;
+import com.projectiq.mcp.client.dto.RelatedFileRequest;
+import com.projectiq.mcp.client.dto.RelatedFileResponse;
 import com.projectiq.mcp.client.dto.RestApiRequest;
 import com.projectiq.mcp.client.dto.RestApiResponse;
 import com.projectiq.mcp.client.dto.SpringComponentRequest;
@@ -102,4 +104,12 @@ public interface IndexerRestClient {
      * @return method response with matching method metadata
      */
     MethodResponse findMethod(MethodRequest request);
+
+    /**
+     * Finds related files in the Indexer.
+     *
+     * @param request the related file request containing search criteria
+     * @return related file response with matching related files
+     */
+    RelatedFileResponse findRelatedFiles(RelatedFileRequest request);
 }
