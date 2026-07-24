@@ -26,6 +26,7 @@ import com.projectiq.mcp.tools.RepositoryStatisticsTool;
 import com.projectiq.mcp.tools.RepositorySummaryTool;
 import com.projectiq.mcp.tools.SearchCodeTool;
 import com.projectiq.mcp.tools.TestImpactAnalysisTool;
+import com.projectiq.mcp.tools.ValidateWorkflowTool;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.context.annotation.Bean;
@@ -67,6 +68,7 @@ public class McpServerConfig {
      * @param refactoringAssistantTool the refactoring assistant tool
      * @param buildContextPipelineTool the build context pipeline tool
      * @param planExecutionTool the plan execution tool
+     * @param validateWorkflowTool the validate workflow tool
      * @return ToolCallbackProvider containing all registered tools
      */
     @Bean
@@ -96,7 +98,8 @@ public class McpServerConfig {
             RefactoringAssistantTool refactoringAssistantTool,
             ExecuteWorkflowTool executeWorkflowTool,
             OrchestrateWorkflowTool orchestrateWorkflowTool,
-            PlanExecutionTool planExecutionTool) {
+            PlanExecutionTool planExecutionTool,
+            ValidateWorkflowTool validateWorkflowTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -124,7 +127,8 @@ public class McpServerConfig {
                         refactoringAssistantTool,
                         executeWorkflowTool,
                         orchestrateWorkflowTool,
-                        planExecutionTool
+                        planExecutionTool,
+                        validateWorkflowTool
                 )
                 .build();
     }
