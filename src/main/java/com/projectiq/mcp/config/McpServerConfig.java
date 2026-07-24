@@ -36,6 +36,7 @@ import com.projectiq.mcp.tools.SearchCodeTool;
 import com.projectiq.mcp.tools.TestImpactAnalysisTool;
 import com.projectiq.mcp.tools.GenerateRecommendationsTool;
 import com.projectiq.mcp.tools.PredictDependencyChangeTool;
+import com.projectiq.mcp.tools.SimulateRefactoringTool;
 import com.projectiq.mcp.tools.ValidateWorkflowTool;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
@@ -78,6 +79,8 @@ public class McpServerConfig {
      * @param refactoringAssistantTool the refactoring assistant tool
      * @param buildContextPipelineTool the build context pipeline tool
      * @param planExecutionTool the plan execution tool
+     * @param validateWorkflowTool the validate workflow tool
+     * @param simulateRefactoringTool the simulate refactoring tool
      * @param generateRecommendationsTool the generate recommendations tool
      * @param createDevelopmentSessionTool the create development session tool
      * @param getDevelopmentSessionTool the get development session tool
@@ -85,7 +88,6 @@ public class McpServerConfig {
      * @param completeDevelopmentSessionTool the complete development session tool
      * @param assessExecutionReadinessTool the execution readiness tool
      * @param predictDependencyChangeTool the predict dependency change tool
-     * @param validateWorkflowTool the validate workflow tool
      * @param executeEndToEndWorkflowTool the end-to-end integration workflow tool
      * @param exportAgentHandoffTool the export agent handoff tool
      * @param importAgentHandoffTool the import agent handoff tool
@@ -120,6 +122,7 @@ public class McpServerConfig {
             OrchestrateWorkflowTool orchestrateWorkflowTool,
             PlanExecutionTool planExecutionTool,
             ValidateWorkflowTool validateWorkflowTool,
+            SimulateRefactoringTool simulateRefactoringTool,
             GenerateRecommendationsTool generateRecommendationsTool,
             AssessExecutionReadinessTool assessExecutionReadinessTool,
             CreateDevelopmentSessionTool createDevelopmentSessionTool,
@@ -159,6 +162,7 @@ public class McpServerConfig {
                         orchestrateWorkflowTool,
                         planExecutionTool,
                         validateWorkflowTool,
+                        simulateRefactoringTool,
                         generateRecommendationsTool,
                         assessExecutionReadinessTool,
                         createDevelopmentSessionTool,
