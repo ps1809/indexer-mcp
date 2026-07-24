@@ -1,5 +1,7 @@
 package com.projectiq.mcp.client;
 
+import com.projectiq.mcp.client.dto.ClassRequest;
+import com.projectiq.mcp.client.dto.ClassResponse;
 import com.projectiq.mcp.client.dto.DependencyRequest;
 import com.projectiq.mcp.client.dto.DependencyResponse;
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
@@ -346,6 +348,55 @@ public class IndexerRestClientImpl implements IndexerRestClient {
             throw handleResourceAccessException(e);
         } catch (RestClientException e) {
             String message = "Failed to deserialize response from Indexer dependency endpoint: " + e.getMessage();
+            logger.error(message, e);
+            throw new IndexerClientException(message, e);
+        }
+    }
+
+    @Override
+    public ClassResponse findClass(ClassRequest request) {
+        logger.debug("Finding classes for repository: {}, className: {}", 
+                request.getRepositoryName(), request.getClassName());
+        
+        StringBuilder urlBuilder = new StringBuilder("/api/v1/indexer/");
+        urlBuilder.append(request.getRepositoryName()).append("/class?q=");
+        
+        if (request.getClassName() != null && !request.getClassName().isEmpty()) {
+            urlBuilder.append(request.getClassName());
+        }
+        
+        if (request.getBranch() != null && !request.getBranch().isEmpty()) {
+            urlBuilder.append("&branch=").append(request.getBranch());
+        }
+        
+        if (request.getPackageName() != null && !request.getPackageName().isEmpty()) {
+            urlBuilder.append("&packageName=").append(request.getPackageName());
+        }
+        
+        if (request.getClassTypes() != null && !request.getClassTypes().isEmpty()) {
+            urlBuilder.append("&types=").append(String.join(",", request.getClassTypes()));
+        }
+
+        String url = urlBuilder.toString();
+
+        try {
+            ClassResponse response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .body(ClassResponse.class);
+
+            if (response == null) {
+                throw new IndexerClientException("Received null response from Indexer class endpoint");
+            }
+
+            logger.debug("Indexer class results: {} total", response.getTotalResults());
+            return response;
+        } catch (ResourceAccessException e) {
+            throw handleResourceAccessException(e);
+        } catch (RestClientException e) {
+            String message = "Failed to deserialize response from Indexer class endpoint: " + e.getMessage();
             logger.error(message, e);
             throw new IndexerClientException(message, e);
         }

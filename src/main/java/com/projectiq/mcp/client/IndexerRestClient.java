@@ -8,6 +8,8 @@ import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
 import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 import com.projectiq.mcp.client.dto.SearchCodeRequest;
 import com.projectiq.mcp.client.dto.SearchCodeResponse;
+import com.projectiq.mcp.client.dto.ClassRequest;
+import com.projectiq.mcp.client.dto.ClassResponse;
 import com.projectiq.mcp.client.dto.DependencyRequest;
 import com.projectiq.mcp.client.dto.DependencyResponse;
 import com.projectiq.mcp.client.dto.RestApiRequest;
@@ -82,4 +84,12 @@ public interface IndexerRestClient {
      * @return dependency response with matching dependencies
      */
     DependencyResponse findDependency(DependencyRequest request);
+
+    /**
+     * Finds Java classes in the Indexer.
+     *
+     * @param request the class request containing search criteria
+     * @return class response with matching class metadata
+     */
+    ClassResponse findClass(ClassRequest request);
 }

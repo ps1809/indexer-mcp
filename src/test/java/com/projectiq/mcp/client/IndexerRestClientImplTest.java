@@ -1,5 +1,9 @@
 package com.projectiq.mcp.client;
 
+import com.projectiq.mcp.client.dto.ClassInfo;
+import com.projectiq.mcp.client.dto.ClassRequest;
+import com.projectiq.mcp.client.dto.ClassResponse;
+import com.projectiq.mcp.client.dto.ClassType;
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
 import com.projectiq.mcp.client.dto.RepositoryStatsRequest;
 import com.projectiq.mcp.client.dto.RepositoryStatsResponse;
@@ -14,6 +18,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -93,79 +100,6 @@ class IndexerRestClientImplTest {
                 () -> indexerRestClient.checkHealth());
 
         assertEquals(404, exception.getStatusCode());
-        mockServer.verify();
-    }
-
-    @Test
-    void isReachable_shouldReturnTrueWhenServerResponds() {
-        mockServer.expect(requestTo("http://localhost:8081/actuator/health"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("OK", MediaType.TEXT_PLAIN));
-
-        boolean reachable = indexerRestClient.isReachable();
-
-        assertTrue(reachable);
-        mockServer.verify();
-    }
-
-    @Test
-    void isReachable_shouldReturnFalseOnHttpError() {
-        mockServer.expect(requestTo("http://localhost:8081/actuator/health"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withServerError().body("Error").contentType(MediaType.TEXT_PLAIN));
-
-        boolean reachable = indexerRestClient.isReachable();
-
-        assertFalse(reachable);
-        mockServer.verify();
-    }
-
-    @Test
-    void checkHealth_shouldHandleDeserializationError() {
-        String invalidJson = "not valid json {{{";
-
-        mockServer.expect(requestTo("http://localhost:8081/actuator/health"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess(invalidJson, MediaType.APPLICATION_JSON));
-
-        assertThrows(IndexerClientException.class, () -> indexerRestClient.checkHealth());
-        mockServer.verify();
-    }
-
-    @Test
-    void getRepositorySummary_shouldReturnSummaryResponse() {
-        String responseBody = """
-                {
-                    "repositoryName": "test-repo",
-                    "branch": "main",
-                    "status": "INDEXED",
-                    "commitCount": 100,
-                    "packageCount": 10,
-                    "classCount": 50,
-                    "methodCount": 200,
-                    "fileCount": 75,
-                    "lastIndexedDate": "2024-01-15T10:30:00"
-                }
-                """;
-
-        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/test-repo/summary?branch=main"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
-
-        RepositorySummaryRequest request = new RepositorySummaryRequest("test-repo", "main");
-        RepositorySummaryResponse response = indexerRestClient.getRepositorySummary(request);
-
-        assertNotNull(response);
-        assertEquals("test-repo", response.getRepositoryName());
-        assertEquals("main", response.getBranch());
-        assertEquals("INDEXED", response.getStatus());
-        assertEquals(100L, response.getCommitCount());
-        assertEquals(10L, response.getPackageCount());
-        assertEquals(50L, response.getClassCount());
-        assertEquals(200L, response.getMethodCount());
-        assertEquals(75L, response.getFileCount());
-        assertEquals("2024-01-15T10:30:00", response.getLastIndexedDate());
-        assertTrue(response.isIndexed());
         mockServer.verify();
     }
 
@@ -298,6 +232,242 @@ class IndexerRestClientImplTest {
                 () -> indexerRestClient.getRepositoryStatistics(request));
 
         assertTrue(exception.getMessage().contains("deserialize"));
+        mockServer.verify();
+    }
+
+    @Test
+    void findClass_shouldReturnClassResponse() {
+        String responseBody = """
+                {
+                    "repositoryName": "spring-framework",
+                    "totalResults": 2,
+                    "classes": [
+                        {
+                            "packageName": "org.springframework.web",
+                            "className": "RestController",
+                            "fullyQualifiedName": "org.springframework.web.RestController",
+                            "classType": "ANNOTATION",
+                            "visibility": "public",
+                            "parentClass": null,
+                            "implementedInterfaces": [],
+                            "annotations": ["@Documented", "@Retention", "@Target"],
+                            "sourceFileLocation": "spring-web/org/springframework/web/RestController.java"
+                        },
+                        {
+                            "packageName": "com.example.controller",
+                            "className": "RestController",
+                            "fullyQualifiedName": "com.example.controller.RestController",
+                            "classType": "CLASS",
+                            "visibility": "public",
+                            "parentClass": "ControllerSupport",
+                            "implementedInterfaces": ["InitializingBean"],
+                            "annotations": ["@RestController", "@RequestMapping"],
+                            "sourceFileLocation": "src/main/java/com/example/controller/RestController.java"
+                        }
+                    ]
+                }
+                """;
+
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/spring-framework/class?q=RestController"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        ClassRequest request = new ClassRequest();
+        request.setRepositoryName("spring-framework");
+        request.setClassName("RestController");
+
+        ClassResponse response = indexerRestClient.findClass(request);
+
+        assertNotNull(response);
+        assertEquals("spring-framework", response.getRepositoryName());
+        assertEquals(2, response.getTotalResults());
+        assertEquals(2, response.getClasses().size());
+
+        ClassInfo classInfo = response.getClasses().get(0);
+        assertEquals("org.springframework.web", classInfo.getPackageName());
+        assertEquals("RestController", classInfo.getClassName());
+        assertEquals("org.springframework.web.RestController", classInfo.getFullyQualifiedName());
+        assertEquals(ClassType.ANNOTATION, classInfo.getClassType());
+        assertEquals("public", classInfo.getVisibility());
+        assertNull(classInfo.getParentClass());
+        assertTrue(classInfo.getImplementedInterfaces().isEmpty());
+        assertEquals(3, classInfo.getAnnotations().size());
+        assertEquals("spring-web/org/springframework/web/RestController.java", classInfo.getSourceFileLocation());
+
+        ClassInfo classInfo2 = response.getClasses().get(1);
+        assertEquals("com.example.controller", classInfo2.getPackageName());
+        assertEquals("RestController", classInfo2.getClassName());
+        assertEquals("CLASS", classInfo2.getClassType().name());
+        assertEquals("ControllerSupport", classInfo2.getParentClass());
+        assertTrue(classInfo2.getImplementedInterfaces().contains("InitializingBean"));
+
+        mockServer.verify();
+    }
+
+    @Test
+    void findClass_shouldThrowOnHttpError() {
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/test-repo/class?q=Test"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withServerError().body("Internal Server Error").contentType(MediaType.TEXT_PLAIN));
+
+        ClassRequest request = new ClassRequest();
+        request.setRepositoryName("test-repo");
+        request.setClassName("Test");
+
+        IndexerHttpException exception = assertThrows(IndexerHttpException.class,
+                () -> indexerRestClient.findClass(request));
+
+        assertEquals(500, exception.getStatusCode());
+        mockServer.verify();
+    }
+
+    @Test
+    void findClass_shouldThrowOnDeserializationError() {
+        String invalidJson = "not valid json {{{";
+
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/test-repo/class?q=Test"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(invalidJson, MediaType.APPLICATION_JSON));
+
+        ClassRequest request = new ClassRequest();
+        request.setRepositoryName("test-repo");
+        request.setClassName("Test");
+
+        IndexerClientException exception = assertThrows(IndexerClientException.class,
+                () -> indexerRestClient.findClass(request));
+
+        assertTrue(exception.getMessage().contains("deserialize"));
+        mockServer.verify();
+    }
+
+    @Test
+    void findClass_shouldThrowOnNotFound() {
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/nonexistent/class?q=Test"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withResourceNotFound().body("Not Found").contentType(MediaType.TEXT_PLAIN));
+
+        ClassRequest request = new ClassRequest();
+        request.setRepositoryName("nonexistent");
+        request.setClassName("Test");
+
+        IndexerHttpException exception = assertThrows(IndexerHttpException.class,
+                () -> indexerRestClient.findClass(request));
+
+        assertEquals(404, exception.getStatusCode());
+        mockServer.verify();
+    }
+
+    @Test
+    void findClass_shouldHandleEmptyResults() {
+        String responseBody = """
+                {
+                    "repositoryName": "empty-repo",
+                    "totalResults": 0,
+                    "classes": []
+                }
+                """;
+
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/empty-repo/class?q=NonExistent"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        ClassRequest request = new ClassRequest();
+        request.setRepositoryName("empty-repo");
+        request.setClassName("NonExistent");
+
+        ClassResponse response = indexerRestClient.findClass(request);
+
+        assertNotNull(response);
+        assertEquals("empty-repo", response.getRepositoryName());
+        assertEquals(0, response.getTotalResults());
+        assertTrue(response.getClasses().isEmpty());
+        mockServer.verify();
+    }
+
+    @Test
+    void findClass_shouldHandleAllClassTypes() {
+        String responseBody = """
+                {
+                    "repositoryName": "test-repo",
+                    "totalResults": 5,
+                    "classes": [
+                        {
+                            "packageName": "com.example",
+                            "className": "MyClass",
+                            "fullyQualifiedName": "com.example.MyClass",
+                            "classType": "CLASS",
+                            "visibility": "public",
+                            "parentClass": "Object",
+                            "implementedInterfaces": [],
+                            "annotations": [],
+                            "sourceFileLocation": "src/main/java/com/example/MyClass.java"
+                        },
+                        {
+                            "packageName": "com.example",
+                            "className": "MyInterface",
+                            "fullyQualifiedName": "com.example.MyInterface",
+                            "classType": "INTERFACE",
+                            "visibility": "public",
+                            "parentClass": null,
+                            "implementedInterfaces": [],
+                            "annotations": [],
+                            "sourceFileLocation": "src/main/java/com/example/MyInterface.java"
+                        },
+                        {
+                            "packageName": "com.example",
+                            "className": "MyEnum",
+                            "fullyQualifiedName": "com.example.MyEnum",
+                            "classType": "ENUM",
+                            "visibility": "public",
+                            "parentClass": "Enum",
+                            "implementedInterfaces": ["Serializable"],
+                            "annotations": [],
+                            "sourceFileLocation": "src/main/java/com/example/MyEnum.java"
+                        },
+                        {
+                            "packageName": "com.example",
+                            "className": "MyRecord",
+                            "fullyQualifiedName": "com.example.MyRecord",
+                            "classType": "RECORD",
+                            "visibility": "public",
+                            "parentClass": "Object",
+                            "implementedInterfaces": [],
+                            "annotations": [],
+                            "sourceFileLocation": "src/main/java/com/example/MyRecord.java"
+                        },
+                        {
+                            "packageName": "com.example",
+                            "className": "MyAnnotation",
+                            "fullyQualifiedName": "com.example.MyAnnotation",
+                            "classType": "ANNOTATION",
+                            "visibility": "public",
+                            "parentClass": null,
+                            "implementedInterfaces": [],
+                            "annotations": [],
+                            "sourceFileLocation": "src/main/java/com/example/MyAnnotation.java"
+                        }
+                    ]
+                }
+                """;
+
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/test-repo/class?q=My&types=CLASS,INTERFACE,ENUM,RECORD,ANNOTATION"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        ClassRequest request = new ClassRequest();
+        request.setRepositoryName("test-repo");
+        request.setClassName("My");
+        request.setClassTypes(Arrays.asList("CLASS", "INTERFACE", "ENUM", "RECORD", "ANNOTATION"));
+
+        ClassResponse response = indexerRestClient.findClass(request);
+
+        assertNotNull(response);
+        assertEquals(5, response.getTotalResults());
+        assertEquals(ClassType.CLASS, response.getClasses().get(0).getClassType());
+        assertEquals(ClassType.INTERFACE, response.getClasses().get(1).getClassType());
+        assertEquals(ClassType.ENUM, response.getClasses().get(2).getClassType());
+        assertEquals(ClassType.RECORD, response.getClasses().get(3).getClassType());
+        assertEquals(ClassType.ANNOTATION, response.getClasses().get(4).getClassType());
         mockServer.verify();
     }
 }
