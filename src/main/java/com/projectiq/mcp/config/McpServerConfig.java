@@ -27,6 +27,7 @@ import com.projectiq.mcp.tools.PingTool;
 import com.projectiq.mcp.tools.PlanExecutionTool;
 import com.projectiq.mcp.tools.PromptContextTool;
 import com.projectiq.mcp.tools.OrchestrateWorkflowTool;
+import com.projectiq.mcp.tools.RecommendDevelopmentStrategyTool;
 import com.projectiq.mcp.tools.RefactoringAssistantTool;
 import com.projectiq.mcp.tools.RepositoryConventionTool;
 import com.projectiq.mcp.tools.RepositoryHealthTool;
@@ -93,6 +94,7 @@ public class McpServerConfig {
      * @param executeEndToEndWorkflowTool the end-to-end integration workflow tool
      * @param exportAgentHandoffTool the export agent handoff tool
      * @param importAgentHandoffTool the import agent handoff tool
+     * @param recommendDevelopmentStrategyTool the recommend development strategy tool
      * @return ToolCallbackProvider containing all registered tools
      */
     @Bean
@@ -135,7 +137,8 @@ public class McpServerConfig {
             ExecuteEndToEndWorkflowTool executeEndToEndWorkflowTool,
             ExportAgentHandoffTool exportAgentHandoffTool,
             ImportAgentHandoffTool importAgentHandoffTool,
-            PredictDependencyChangeTool predictDependencyChangeTool) {
+            PredictDependencyChangeTool predictDependencyChangeTool,
+            RecommendDevelopmentStrategyTool recommendDevelopmentStrategyTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -176,7 +179,8 @@ public class McpServerConfig {
                         executeEndToEndWorkflowTool,
                         exportAgentHandoffTool,
                         importAgentHandoffTool,
-                        predictDependencyChangeTool
+                        predictDependencyChangeTool,
+                        recommendDevelopmentStrategyTool
                 )
                 .build();
     }
