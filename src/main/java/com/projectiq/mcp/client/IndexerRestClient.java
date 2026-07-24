@@ -1,6 +1,9 @@
 package com.projectiq.mcp.client;
 
+import com.projectiq.mcp.client.dto.ContributorStats;
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
+import com.projectiq.mcp.client.dto.RepositoryStatsRequest;
+import com.projectiq.mcp.client.dto.RepositoryStatsResponse;
 import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
 import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 
@@ -31,4 +34,12 @@ public interface IndexerRestClient {
      * @return repository summary response
      */
     RepositorySummaryResponse getRepositorySummary(RepositorySummaryRequest request);
+
+    /**
+     * Retrieves the repository statistics from the Indexer.
+     *
+     * @param request the repository statistics request containing repository name and branch
+     * @return repository statistics response
+     */
+    RepositoryStatsResponse getRepositoryStatistics(RepositoryStatsRequest request);
 }

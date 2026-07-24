@@ -1,6 +1,8 @@
 package com.projectiq.mcp.client;
 
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
+import com.projectiq.mcp.client.dto.RepositoryStatsRequest;
+import com.projectiq.mcp.client.dto.RepositoryStatsResponse;
 import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
 import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 import com.projectiq.mcp.client.exception.IndexerClientException;
@@ -115,6 +117,39 @@ public class IndexerRestClientImpl implements IndexerRestClient {
             throw handleResourceAccessException(e);
         } catch (RestClientException e) {
             String message = "Failed to deserialize response from Indexer repository summary endpoint: " + e.getMessage();
+            logger.error(message, e);
+            throw new IndexerClientException(message, e);
+        }
+    }
+
+    @Override
+    public RepositoryStatsResponse getRepositoryStatistics(RepositoryStatsRequest request) {
+        logger.debug("Fetching repository statistics for repository: {}, branch: {}", 
+                request.getRepositoryName(), request.getBranch());
+        
+        String url = "/api/v1/indexer/" + request.getRepositoryName() + "/stats";
+        if (request.getBranch() != null && !request.getBranch().isEmpty()) {
+            url += "?branch=" + request.getBranch();
+        }
+
+        try {
+            RepositoryStatsResponse response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .body(RepositoryStatsResponse.class);
+
+            if (response == null) {
+                throw new IndexerClientException("Received null response from Indexer repository statistics endpoint");
+            }
+
+            logger.debug("Indexer repository statistics: {}", response);
+            return response;
+        } catch (ResourceAccessException e) {
+            throw handleResourceAccessException(e);
+        } catch (RestClientException e) {
+            String message = "Failed to deserialize response from Indexer repository statistics endpoint: " + e.getMessage();
             logger.error(message, e);
             throw new IndexerClientException(message, e);
         }
