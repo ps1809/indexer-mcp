@@ -35,6 +35,7 @@ import com.projectiq.mcp.tools.ResumeDevelopmentSessionTool;
 import com.projectiq.mcp.tools.SearchCodeTool;
 import com.projectiq.mcp.tools.TestImpactAnalysisTool;
 import com.projectiq.mcp.tools.GenerateRecommendationsTool;
+import com.projectiq.mcp.tools.PredictDependencyChangeTool;
 import com.projectiq.mcp.tools.ValidateWorkflowTool;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
@@ -83,6 +84,7 @@ public class McpServerConfig {
      * @param resumeDevelopmentSessionTool the resume development session tool
      * @param completeDevelopmentSessionTool the complete development session tool
      * @param assessExecutionReadinessTool the execution readiness tool
+     * @param predictDependencyChangeTool the predict dependency change tool
      * @param validateWorkflowTool the validate workflow tool
      * @param executeEndToEndWorkflowTool the end-to-end integration workflow tool
      * @param exportAgentHandoffTool the export agent handoff tool
@@ -126,7 +128,8 @@ public class McpServerConfig {
             CompleteDevelopmentSessionTool completeDevelopmentSessionTool,
             ExecuteEndToEndWorkflowTool executeEndToEndWorkflowTool,
             ExportAgentHandoffTool exportAgentHandoffTool,
-            ImportAgentHandoffTool importAgentHandoffTool) {
+            ImportAgentHandoffTool importAgentHandoffTool,
+            PredictDependencyChangeTool predictDependencyChangeTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -164,7 +167,8 @@ public class McpServerConfig {
                         completeDevelopmentSessionTool,
                         executeEndToEndWorkflowTool,
                         exportAgentHandoffTool,
-                        importAgentHandoffTool
+                        importAgentHandoffTool,
+                        predictDependencyChangeTool
                 )
                 .build();
     }
