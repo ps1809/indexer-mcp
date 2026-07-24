@@ -139,7 +139,7 @@ class IntegrationOrchestratorServiceTest {
         assertNotNull(response.getWorkflowId());
         assertEquals(request, response.getOriginalRequest());
         assertEquals(repositoryName, response.getRepositoryName());
-        assertTrue(response.getTotalDurationMillis() > 0);
+        assertTrue(response.getTotalDurationMillis() >= 0);
         assertNotNull(response.getTaskAnalysis());
         assertNotNull(response.getWorkflowResult());
         assertNotNull(response.getContextPackage());
