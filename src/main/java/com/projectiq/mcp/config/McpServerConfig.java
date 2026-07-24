@@ -4,6 +4,7 @@ import com.projectiq.mcp.tools.AnalyzeImpactTool;
 import com.projectiq.mcp.tools.AnalyzeTaskTool;
 import com.projectiq.mcp.tools.ArchitectureInsightsTool;
 import com.projectiq.mcp.tools.AssembleContextTool;
+import com.projectiq.mcp.tools.AssessExecutionReadinessTool;
 import com.projectiq.mcp.tools.BuildContextPipelineTool;
 import com.projectiq.mcp.tools.BuildContextTool;
 import com.projectiq.mcp.tools.DevelopmentContextTool;
@@ -70,6 +71,7 @@ public class McpServerConfig {
      * @param buildContextPipelineTool the build context pipeline tool
      * @param planExecutionTool the plan execution tool
      * @param generateRecommendationsTool the generate recommendations tool
+     * @param assessExecutionReadinessTool the execution readiness tool
      * @param validateWorkflowTool the validate workflow tool
      * @return ToolCallbackProvider containing all registered tools
      */
@@ -102,7 +104,8 @@ public class McpServerConfig {
             OrchestrateWorkflowTool orchestrateWorkflowTool,
             PlanExecutionTool planExecutionTool,
             ValidateWorkflowTool validateWorkflowTool,
-            GenerateRecommendationsTool generateRecommendationsTool) {
+            GenerateRecommendationsTool generateRecommendationsTool,
+            AssessExecutionReadinessTool assessExecutionReadinessTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -132,7 +135,8 @@ public class McpServerConfig {
                         orchestrateWorkflowTool,
                         planExecutionTool,
                         validateWorkflowTool,
-                        generateRecommendationsTool
+                        generateRecommendationsTool,
+                        assessExecutionReadinessTool
                 )
                 .build();
     }
