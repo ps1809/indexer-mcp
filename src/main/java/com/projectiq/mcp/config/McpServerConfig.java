@@ -27,6 +27,7 @@ import com.projectiq.mcp.tools.PingTool;
 import com.projectiq.mcp.tools.PlanExecutionTool;
 import com.projectiq.mcp.tools.PromptContextTool;
 import com.projectiq.mcp.tools.OrchestrateWorkflowTool;
+import com.projectiq.mcp.tools.QueryRepositoryGraphTool;
 import com.projectiq.mcp.tools.RecommendDevelopmentStrategyTool;
 import com.projectiq.mcp.tools.RefactoringAssistantTool;
 import com.projectiq.mcp.tools.RepositoryConventionTool;
@@ -66,34 +67,35 @@ public class McpServerConfig {
      * @param findMethodTool the find method tool
      * @param listRelatedFilesTool the list related files tool
      * @param buildContextTool the build context tool
+     * @param buildContextPipelineTool the build context pipeline tool
      * @param architectureInsightsTool the architecture insights tool
      * @param analyzeTaskTool the task analysis tool
-     * @param repositoryConventionTool the repository convention tool
-     * @param repositoryHealthTool the repository health tool
      * @param analyzeImpactTool the impact analysis tool
+     * @param analyzeRepositoryEvolutionTool the repository evolution analysis tool
      * @param assembleContextTool the context assembly tool
      * @param developmentContextTool the development context tool
      * @param promptContextTool the prompt context tool
+     * @param repositoryConventionTool the repository convention tool
+     * @param repositoryHealthTool the repository health tool
      * @param implementationPlanTool the implementation plan tool
      * @param testImpactAnalysisTool the test impact analysis tool
+     * @param refactoringAssistantTool the refactoring assistant tool
      * @param executeWorkflowTool the workflow execution tool
      * @param orchestrateWorkflowTool the workflow orchestration tool
-     * @param refactoringAssistantTool the refactoring assistant tool
-     * @param buildContextPipelineTool the build context pipeline tool
      * @param planExecutionTool the plan execution tool
      * @param validateWorkflowTool the validate workflow tool
      * @param simulateRefactoringTool the simulate refactoring tool
      * @param generateRecommendationsTool the generate recommendations tool
+     * @param assessExecutionReadinessTool the execution readiness tool
      * @param createDevelopmentSessionTool the create development session tool
      * @param getDevelopmentSessionTool the get development session tool
      * @param resumeDevelopmentSessionTool the resume development session tool
      * @param completeDevelopmentSessionTool the complete development session tool
-     * @param assessExecutionReadinessTool the execution readiness tool
-     * @param analyzeRepositoryEvolutionTool the repository evolution analysis tool
-     * @param predictDependencyChangeTool the predict dependency change tool
      * @param executeEndToEndWorkflowTool the end-to-end integration workflow tool
      * @param exportAgentHandoffTool the export agent handoff tool
      * @param importAgentHandoffTool the import agent handoff tool
+     * @param predictDependencyChangeTool the predict dependency change tool
+     * @param queryRepositoryGraphTool the query repository graph tool
      * @param recommendDevelopmentStrategyTool the recommend development strategy tool
      * @return ToolCallbackProvider containing all registered tools
      */
@@ -138,6 +140,7 @@ public class McpServerConfig {
             ExportAgentHandoffTool exportAgentHandoffTool,
             ImportAgentHandoffTool importAgentHandoffTool,
             PredictDependencyChangeTool predictDependencyChangeTool,
+            QueryRepositoryGraphTool queryRepositoryGraphTool,
             RecommendDevelopmentStrategyTool recommendDevelopmentStrategyTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
@@ -180,6 +183,7 @@ public class McpServerConfig {
                         exportAgentHandoffTool,
                         importAgentHandoffTool,
                         predictDependencyChangeTool,
+                        queryRepositoryGraphTool,
                         recommendDevelopmentStrategyTool
                 )
                 .build();
