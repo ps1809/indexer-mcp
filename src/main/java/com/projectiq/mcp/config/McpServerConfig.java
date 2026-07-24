@@ -41,6 +41,7 @@ import com.projectiq.mcp.tools.SearchCodeTool;
 import com.projectiq.mcp.tools.TestImpactAnalysisTool;
 import com.projectiq.mcp.tools.GenerateRecommendationsTool;
 import com.projectiq.mcp.tools.PredictDependencyChangeTool;
+import com.projectiq.mcp.tools.QueryDevelopmentKnowledgeTool;
 import com.projectiq.mcp.tools.SimulateRefactoringTool;
 import com.projectiq.mcp.tools.ValidateWorkflowTool;
 import org.springframework.ai.tool.ToolCallbackProvider;
@@ -98,6 +99,7 @@ public class McpServerConfig {
      * @param importAgentHandoffTool the import agent handoff tool
      * @param predictDependencyChangeTool the predict dependency change tool
      * @param queryRepositoryGraphTool the query repository graph tool
+     * @param queryDevelopmentKnowledgeTool the query development knowledge tool
      * @param architecturalDecisionTool the architectural decision tool
      * @param crossRepositoryAnalysisTool the cross-repository analysis tool
      * @param recommendDevelopmentStrategyTool the recommend development strategy tool
@@ -145,6 +147,7 @@ public class McpServerConfig {
             ImportAgentHandoffTool importAgentHandoffTool,
             PredictDependencyChangeTool predictDependencyChangeTool,
             QueryRepositoryGraphTool queryRepositoryGraphTool,
+            QueryDevelopmentKnowledgeTool queryDevelopmentKnowledgeTool,
             RecommendDevelopmentStrategyTool recommendDevelopmentStrategyTool,
             CrossRepositoryAnalysisTool crossRepositoryAnalysisTool,
             ArchitecturalDecisionTool architecturalDecisionTool) {
@@ -190,6 +193,7 @@ public class McpServerConfig {
                         importAgentHandoffTool,
                         predictDependencyChangeTool,
                         queryRepositoryGraphTool,
+                        queryDevelopmentKnowledgeTool,
                         recommendDevelopmentStrategyTool,
                         crossRepositoryAnalysisTool,
                         architecturalDecisionTool
