@@ -1,6 +1,7 @@
 package com.projectiq.mcp.config;
 
 import com.projectiq.mcp.tools.AnalyzeTaskTool;
+import com.projectiq.mcp.tools.AssembleContextTool;
 import com.projectiq.mcp.tools.BuildContextTool;
 import com.projectiq.mcp.tools.DevelopmentContextTool;
 import com.projectiq.mcp.tools.FindClassTool;
@@ -41,6 +42,7 @@ public class McpServerConfig {
      * @param listRelatedFilesTool the list related files tool
      * @param buildContextTool the build context tool
      * @param analyzeTaskTool the task analysis tool
+     * @param assembleContextTool the context assembly tool
      * @param developmentContextTool the development context tool
      * @param promptContextTool the prompt context tool
      * @return ToolCallbackProvider containing all registered tools
@@ -59,6 +61,7 @@ public class McpServerConfig {
             ListRelatedFilesTool listRelatedFilesTool,
             BuildContextTool buildContextTool,
             AnalyzeTaskTool analyzeTaskTool,
+            AssembleContextTool assembleContextTool,
             DevelopmentContextTool developmentContextTool,
             PromptContextTool promptContextTool) {
         return MethodToolCallbackProvider.builder()
@@ -75,6 +78,7 @@ public class McpServerConfig {
                         listRelatedFilesTool,
                         buildContextTool,
                         analyzeTaskTool,
+                        assembleContextTool,
                         developmentContextTool,
                         promptContextTool
                 )
