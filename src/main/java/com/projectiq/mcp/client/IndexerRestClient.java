@@ -1,6 +1,8 @@
 package com.projectiq.mcp.client;
 
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
+import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
+import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 
 /**
  * Interface for REST client communication with ProjectIQ Indexer.
@@ -21,4 +23,12 @@ public interface IndexerRestClient {
      * @return true if the Indexer is reachable, false otherwise
      */
     boolean isReachable();
+
+    /**
+     * Retrieves the repository summary from the Indexer.
+     *
+     * @param request the repository summary request containing repository name and branch
+     * @return repository summary response
+     */
+    RepositorySummaryResponse getRepositorySummary(RepositorySummaryRequest request);
 }

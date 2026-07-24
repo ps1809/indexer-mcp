@@ -1,8 +1,11 @@
 package com.projectiq.mcp.client;
 
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
+import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
+import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 import com.projectiq.mcp.client.exception.IndexerClientException;
 import com.projectiq.mcp.client.exception.IndexerHttpException;
+import com.projectiq.mcp.client.exception.IndexerTimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -124,6 +127,75 @@ class IndexerRestClientImplTest {
                 .andRespond(withSuccess(invalidJson, MediaType.APPLICATION_JSON));
 
         assertThrows(IndexerClientException.class, () -> indexerRestClient.checkHealth());
+        mockServer.verify();
+    }
+
+    @Test
+    void getRepositorySummary_shouldReturnSummaryResponse() {
+        String responseBody = """
+                {
+                    "repositoryName": "test-repo",
+                    "branch": "main",
+                    "status": "INDEXED",
+                    "commitCount": 100,
+                    "packageCount": 10,
+                    "classCount": 50,
+                    "methodCount": 200,
+                    "fileCount": 75,
+                    "lastIndexedDate": "2024-01-15T10:30:00"
+                }
+                """;
+
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/test-repo/summary?branch=main"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        RepositorySummaryRequest request = new RepositorySummaryRequest("test-repo", "main");
+        RepositorySummaryResponse response = indexerRestClient.getRepositorySummary(request);
+
+        assertNotNull(response);
+        assertEquals("test-repo", response.getRepositoryName());
+        assertEquals("main", response.getBranch());
+        assertEquals("INDEXED", response.getStatus());
+        assertEquals(100L, response.getCommitCount());
+        assertEquals(10L, response.getPackageCount());
+        assertEquals(50L, response.getClassCount());
+        assertEquals(200L, response.getMethodCount());
+        assertEquals(75L, response.getFileCount());
+        assertEquals("2024-01-15T10:30:00", response.getLastIndexedDate());
+        assertTrue(response.isIndexed());
+        mockServer.verify();
+    }
+
+    @Test
+    void getRepositorySummary_shouldThrowOnNullResponse() {
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/test-repo/summary"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withResourceNotFound().body("Not Found").contentType(MediaType.TEXT_PLAIN));
+
+        RepositorySummaryRequest request = new RepositorySummaryRequest("test-repo", null);
+        
+        IndexerHttpException exception = assertThrows(IndexerHttpException.class,
+                () -> indexerRestClient.getRepositorySummary(request));
+
+        assertEquals(404, exception.getStatusCode());
+        mockServer.verify();
+    }
+
+    @Test
+    void getRepositorySummary_shouldThrowOnDeserializationError() {
+        String invalidJson = "not valid json {{{";
+
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/test-repo/summary"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(invalidJson, MediaType.APPLICATION_JSON));
+
+        RepositorySummaryRequest request = new RepositorySummaryRequest("test-repo", null);
+        
+        IndexerClientException exception = assertThrows(IndexerClientException.class,
+                () -> indexerRestClient.getRepositorySummary(request));
+
+        assertTrue(exception.getMessage().contains("deserialize"));
         mockServer.verify();
     }
 }

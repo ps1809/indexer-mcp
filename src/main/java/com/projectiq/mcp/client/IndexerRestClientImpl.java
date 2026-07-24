@@ -1,6 +1,8 @@
 package com.projectiq.mcp.client;
 
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
+import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
+import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 import com.projectiq.mcp.client.exception.IndexerClientException;
 import com.projectiq.mcp.client.exception.IndexerConnectionException;
 import com.projectiq.mcp.client.exception.IndexerHttpException;
@@ -82,6 +84,39 @@ public class IndexerRestClientImpl implements IndexerRestClient {
         } catch (IndexerClientException e) {
             logger.warn("Indexer returned error during reachability check: {}", e.getMessage());
             return false;
+        }
+    }
+
+    @Override
+    public RepositorySummaryResponse getRepositorySummary(RepositorySummaryRequest request) {
+        logger.debug("Fetching repository summary for repository: {}, branch: {}", 
+                request.getRepositoryName(), request.getBranch());
+        
+        String url = "/api/v1/indexer/" + request.getRepositoryName() + "/summary";
+        if (request.getBranch() != null && !request.getBranch().isEmpty()) {
+            url += "?branch=" + request.getBranch();
+        }
+
+        try {
+            RepositorySummaryResponse response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .body(RepositorySummaryResponse.class);
+
+            if (response == null) {
+                throw new IndexerClientException("Received null response from Indexer repository summary endpoint");
+            }
+
+            logger.debug("Indexer repository summary: {}", response);
+            return response;
+        } catch (ResourceAccessException e) {
+            throw handleResourceAccessException(e);
+        } catch (RestClientException e) {
+            String message = "Failed to deserialize response from Indexer repository summary endpoint: " + e.getMessage();
+            logger.error(message, e);
+            throw new IndexerClientException(message, e);
         }
     }
 
