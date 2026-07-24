@@ -28,6 +28,7 @@ import com.projectiq.mcp.tools.PlanExecutionTool;
 import com.projectiq.mcp.tools.PromptContextTool;
 import com.projectiq.mcp.tools.OrchestrateWorkflowTool;
 import com.projectiq.mcp.tools.QueryRepositoryGraphTool;
+import com.projectiq.mcp.tools.ArchitecturalDecisionTool;
 import com.projectiq.mcp.tools.CrossRepositoryAnalysisTool;
 import com.projectiq.mcp.tools.RecommendDevelopmentStrategyTool;
 import com.projectiq.mcp.tools.RefactoringAssistantTool;
@@ -97,6 +98,7 @@ public class McpServerConfig {
      * @param importAgentHandoffTool the import agent handoff tool
      * @param predictDependencyChangeTool the predict dependency change tool
      * @param queryRepositoryGraphTool the query repository graph tool
+     * @param architecturalDecisionTool the architectural decision tool
      * @param crossRepositoryAnalysisTool the cross-repository analysis tool
      * @param recommendDevelopmentStrategyTool the recommend development strategy tool
      * @return ToolCallbackProvider containing all registered tools
@@ -144,7 +146,8 @@ public class McpServerConfig {
             PredictDependencyChangeTool predictDependencyChangeTool,
             QueryRepositoryGraphTool queryRepositoryGraphTool,
             RecommendDevelopmentStrategyTool recommendDevelopmentStrategyTool,
-            CrossRepositoryAnalysisTool crossRepositoryAnalysisTool) {
+            CrossRepositoryAnalysisTool crossRepositoryAnalysisTool,
+            ArchitecturalDecisionTool architecturalDecisionTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -188,7 +191,8 @@ public class McpServerConfig {
                         predictDependencyChangeTool,
                         queryRepositoryGraphTool,
                         recommendDevelopmentStrategyTool,
-                        crossRepositoryAnalysisTool
+                        crossRepositoryAnalysisTool,
+                        architecturalDecisionTool
                 )
                 .build();
     }
