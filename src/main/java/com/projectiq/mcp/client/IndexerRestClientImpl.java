@@ -4,6 +4,8 @@ import com.projectiq.mcp.client.dto.ClassRequest;
 import com.projectiq.mcp.client.dto.ClassResponse;
 import com.projectiq.mcp.client.dto.DependencyRequest;
 import com.projectiq.mcp.client.dto.DependencyResponse;
+import com.projectiq.mcp.client.dto.MethodRequest;
+import com.projectiq.mcp.client.dto.MethodResponse;
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
 import com.projectiq.mcp.client.dto.RepositoryStatsRequest;
 import com.projectiq.mcp.client.dto.RepositoryStatsResponse;
@@ -397,6 +399,55 @@ public class IndexerRestClientImpl implements IndexerRestClient {
             throw handleResourceAccessException(e);
         } catch (RestClientException e) {
             String message = "Failed to deserialize response from Indexer class endpoint: " + e.getMessage();
+            logger.error(message, e);
+            throw new IndexerClientException(message, e);
+        }
+    }
+
+    @Override
+    public MethodResponse findMethod(MethodRequest request) {
+        logger.debug("Finding methods for repository: {}, methodName: {}", 
+                request.getRepositoryName(), request.getMethodName());
+        
+        StringBuilder urlBuilder = new StringBuilder("/api/v1/indexer/");
+        urlBuilder.append(request.getRepositoryName()).append("/method?q=");
+        
+        if (request.getMethodName() != null && !request.getMethodName().isEmpty()) {
+            urlBuilder.append(request.getMethodName());
+        }
+        
+        if (request.getBranch() != null && !request.getBranch().isEmpty()) {
+            urlBuilder.append("&branch=").append(request.getBranch());
+        }
+        
+        if (request.getPackageName() != null && !request.getPackageName().isEmpty()) {
+            urlBuilder.append("&packageName=").append(request.getPackageName());
+        }
+        
+        if (request.getMethodTypes() != null && !request.getMethodTypes().isEmpty()) {
+            urlBuilder.append("&types=").append(String.join(",", request.getMethodTypes()));
+        }
+
+        String url = urlBuilder.toString();
+
+        try {
+            MethodResponse response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .body(MethodResponse.class);
+
+            if (response == null) {
+                throw new IndexerClientException("Received null response from Indexer method endpoint");
+            }
+
+            logger.debug("Indexer method results: {} total", response.getTotalResults());
+            return response;
+        } catch (ResourceAccessException e) {
+            throw handleResourceAccessException(e);
+        } catch (RestClientException e) {
+            String message = "Failed to deserialize response from Indexer method endpoint: " + e.getMessage();
             logger.error(message, e);
             throw new IndexerClientException(message, e);
         }

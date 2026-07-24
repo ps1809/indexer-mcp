@@ -5,6 +5,10 @@ import com.projectiq.mcp.client.dto.ClassRequest;
 import com.projectiq.mcp.client.dto.ClassResponse;
 import com.projectiq.mcp.client.dto.ClassType;
 import com.projectiq.mcp.client.dto.IndexerHealthResponse;
+import com.projectiq.mcp.client.dto.MethodInfo;
+import com.projectiq.mcp.client.dto.MethodParameter;
+import com.projectiq.mcp.client.dto.MethodRequest;
+import com.projectiq.mcp.client.dto.MethodResponse;
 import com.projectiq.mcp.client.dto.RepositoryStatsRequest;
 import com.projectiq.mcp.client.dto.RepositoryStatsResponse;
 import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
@@ -468,6 +472,147 @@ class IndexerRestClientImplTest {
         assertEquals(ClassType.ENUM, response.getClasses().get(2).getClassType());
         assertEquals(ClassType.RECORD, response.getClasses().get(3).getClassType());
         assertEquals(ClassType.ANNOTATION, response.getClasses().get(4).getClassType());
+        mockServer.verify();
+    }
+
+    @Test
+    void findMethod_shouldReturnMethodResponse() {
+        String responseBody = """
+                {
+                    "repositoryName": "spring-framework",
+                    "totalResults": 1,
+                    "methods": [
+                        {
+                            "packageName": "org.springframework.web.servlet",
+                            "declaringClass": "DispatcherServlet",
+                            "methodName": "doDispatch",
+                            "fullyQualifiedName": "org.springframework.web.servlet.DispatcherServlet.doDispatch",
+                            "returnType": "void",
+                            "parameters": [
+                                {"name": "request", "type": "HttpServletRequest"},
+                                {"name": "response", "type": "HttpServletResponse"}
+                            ],
+                            "visibility": "protected",
+                            "staticFlag": false,
+                            "abstractFlag": false,
+                            "annotations": ["@SuppressWarnings"],
+                            "sourceFileLocation": "spring-webmvc/org/springframework/web/servlet/DispatcherServlet.java"
+                        }
+                    ]
+                }
+                """;
+
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/spring-framework/method?q=doDispatch"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        MethodRequest request = new MethodRequest();
+        request.setRepositoryName("spring-framework");
+        request.setMethodName("doDispatch");
+
+        MethodResponse response = indexerRestClient.findMethod(request);
+
+        assertNotNull(response);
+        assertEquals("spring-framework", response.getRepositoryName());
+        assertEquals(1, response.getTotalResults());
+        assertEquals(1, response.getMethods().size());
+
+        MethodInfo methodInfo = response.getMethods().get(0);
+        assertEquals("org.springframework.web.servlet", methodInfo.getPackageName());
+        assertEquals("DispatcherServlet", methodInfo.getDeclaringClass());
+        assertEquals("doDispatch", methodInfo.getMethodName());
+        assertEquals("org.springframework.web.servlet.DispatcherServlet.doDispatch", methodInfo.getFullyQualifiedName());
+        assertEquals("void", methodInfo.getReturnType());
+        assertEquals(2, methodInfo.getParameters().size());
+        assertEquals("request", methodInfo.getParameters().get(0).getName());
+        assertEquals("HttpServletRequest", methodInfo.getParameters().get(0).getType());
+        assertEquals("protected", methodInfo.getVisibility());
+        assertNotNull(methodInfo.isStatic());
+        assertFalse(methodInfo.isStatic().booleanValue());
+        assertNotNull(methodInfo.isAbstract());
+        assertFalse(methodInfo.isAbstract().booleanValue());
+        assertEquals(1, methodInfo.getAnnotations().size());
+        assertEquals("@SuppressWarnings", methodInfo.getAnnotations().get(0));
+        mockServer.verify();
+    }
+
+    @Test
+    void findMethod_shouldThrowOnHttpError() {
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/test-repo/method?q=test"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withServerError().body("Internal Server Error").contentType(MediaType.TEXT_PLAIN));
+
+        MethodRequest request = new MethodRequest();
+        request.setRepositoryName("test-repo");
+        request.setMethodName("test");
+
+        IndexerHttpException exception = assertThrows(IndexerHttpException.class,
+                () -> indexerRestClient.findMethod(request));
+
+        assertEquals(500, exception.getStatusCode());
+        mockServer.verify();
+    }
+
+    @Test
+    void findMethod_shouldThrowOnDeserializationError() {
+        String invalidJson = "not valid json {{{";
+
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/test-repo/method?q=test"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(invalidJson, MediaType.APPLICATION_JSON));
+
+        MethodRequest request = new MethodRequest();
+        request.setRepositoryName("test-repo");
+        request.setMethodName("test");
+
+        IndexerClientException exception = assertThrows(IndexerClientException.class,
+                () -> indexerRestClient.findMethod(request));
+
+        assertTrue(exception.getMessage().contains("deserialize"));
+        mockServer.verify();
+    }
+
+    @Test
+    void findMethod_shouldThrowOnNotFound() {
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/nonexistent/method?q=test"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withResourceNotFound().body("Not Found").contentType(MediaType.TEXT_PLAIN));
+
+        MethodRequest request = new MethodRequest();
+        request.setRepositoryName("nonexistent");
+        request.setMethodName("test");
+
+        IndexerHttpException exception = assertThrows(IndexerHttpException.class,
+                () -> indexerRestClient.findMethod(request));
+
+        assertEquals(404, exception.getStatusCode());
+        mockServer.verify();
+    }
+
+    @Test
+    void findMethod_shouldHandleEmptyResults() {
+        String responseBody = """
+                {
+                    "repositoryName": "empty-repo",
+                    "totalResults": 0,
+                    "methods": []
+                }
+                """;
+
+        mockServer.expect(requestTo("http://localhost:8081/api/v1/indexer/empty-repo/method?q=nonexistent"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        MethodRequest request = new MethodRequest();
+        request.setRepositoryName("empty-repo");
+        request.setMethodName("nonexistent");
+
+        MethodResponse response = indexerRestClient.findMethod(request);
+
+        assertNotNull(response);
+        assertEquals("empty-repo", response.getRepositoryName());
+        assertEquals(0, response.getTotalResults());
+        assertTrue(response.getMethods().isEmpty());
         mockServer.verify();
     }
 }

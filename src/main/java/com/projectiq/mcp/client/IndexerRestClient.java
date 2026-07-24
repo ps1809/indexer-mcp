@@ -12,6 +12,8 @@ import com.projectiq.mcp.client.dto.ClassRequest;
 import com.projectiq.mcp.client.dto.ClassResponse;
 import com.projectiq.mcp.client.dto.DependencyRequest;
 import com.projectiq.mcp.client.dto.DependencyResponse;
+import com.projectiq.mcp.client.dto.MethodRequest;
+import com.projectiq.mcp.client.dto.MethodResponse;
 import com.projectiq.mcp.client.dto.RestApiRequest;
 import com.projectiq.mcp.client.dto.RestApiResponse;
 import com.projectiq.mcp.client.dto.SpringComponentRequest;
@@ -92,4 +94,12 @@ public interface IndexerRestClient {
      * @return class response with matching class metadata
      */
     ClassResponse findClass(ClassRequest request);
+
+    /**
+     * Finds Java methods in the Indexer.
+     *
+     * @param request the method request containing search criteria
+     * @return method response with matching method metadata
+     */
+    MethodResponse findMethod(MethodRequest request);
 }
