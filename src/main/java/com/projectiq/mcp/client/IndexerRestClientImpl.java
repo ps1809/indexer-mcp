@@ -7,6 +7,8 @@ import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
 import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 import com.projectiq.mcp.client.dto.SearchCodeRequest;
 import com.projectiq.mcp.client.dto.SearchCodeResponse;
+import com.projectiq.mcp.client.dto.SpringComponentRequest;
+import com.projectiq.mcp.client.dto.SpringComponentResponse;
 import com.projectiq.mcp.client.exception.IndexerClientException;
 import com.projectiq.mcp.client.exception.IndexerConnectionException;
 import com.projectiq.mcp.client.exception.IndexerHttpException;
@@ -201,6 +203,51 @@ public class IndexerRestClientImpl implements IndexerRestClient {
             throw handleResourceAccessException(e);
         } catch (RestClientException e) {
             String message = "Failed to deserialize response from Indexer search endpoint: " + e.getMessage();
+            logger.error(message, e);
+            throw new IndexerClientException(message, e);
+        }
+    }
+
+    @Override
+    public SpringComponentResponse findSpringComponent(SpringComponentRequest request) {
+        logger.debug("Finding Spring components for repository: {}, types: {}", 
+                request.getRepositoryName(), request.getComponentTypes());
+        
+        StringBuilder urlBuilder = new StringBuilder("/api/v1/indexer/");
+        urlBuilder.append(request.getRepositoryName()).append("/spring-component?types=");
+        
+        if (request.getComponentTypes() != null && !request.getComponentTypes().isEmpty()) {
+            urlBuilder.append(String.join(",", request.getComponentTypes()));
+        }
+        
+        if (request.getBranch() != null && !request.getBranch().isEmpty()) {
+            urlBuilder.append("&branch=").append(request.getBranch());
+        }
+        
+        if (request.getPackageName() != null && !request.getPackageName().isEmpty()) {
+            urlBuilder.append("&packageName=").append(request.getPackageName());
+        }
+
+        String url = urlBuilder.toString();
+
+        try {
+            SpringComponentResponse response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+                    .onStatus(HttpStatusCode::is5xxServerError, this::handleServerError)
+                    .body(SpringComponentResponse.class);
+
+            if (response == null) {
+                throw new IndexerClientException("Received null response from Indexer spring component endpoint");
+            }
+
+            logger.debug("Indexer Spring component results: {} total", response.getTotalResults());
+            return response;
+        } catch (ResourceAccessException e) {
+            throw handleResourceAccessException(e);
+        } catch (RestClientException e) {
+            String message = "Failed to deserialize response from Indexer spring component endpoint: " + e.getMessage();
             logger.error(message, e);
             throw new IndexerClientException(message, e);
         }

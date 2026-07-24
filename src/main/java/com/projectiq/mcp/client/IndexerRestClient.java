@@ -8,6 +8,8 @@ import com.projectiq.mcp.client.dto.RepositorySummaryRequest;
 import com.projectiq.mcp.client.dto.RepositorySummaryResponse;
 import com.projectiq.mcp.client.dto.SearchCodeRequest;
 import com.projectiq.mcp.client.dto.SearchCodeResponse;
+import com.projectiq.mcp.client.dto.SpringComponentRequest;
+import com.projectiq.mcp.client.dto.SpringComponentResponse;
 
 /**
  * Interface for REST client communication with ProjectIQ Indexer.
@@ -52,4 +54,12 @@ public interface IndexerRestClient {
      * @return search code response with matching results
      */
     SearchCodeResponse searchCode(SearchCodeRequest request);
+
+    /**
+     * Finds Spring components in the Indexer.
+     *
+     * @param request the spring component request containing search criteria
+     * @return spring component response with matching components
+     */
+    SpringComponentResponse findSpringComponent(SpringComponentRequest request);
 }
