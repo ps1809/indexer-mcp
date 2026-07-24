@@ -16,6 +16,7 @@ import com.projectiq.mcp.tools.FindSpringComponentTool;
 import com.projectiq.mcp.tools.ImplementationPlanTool;
 import com.projectiq.mcp.tools.ListRelatedFilesTool;
 import com.projectiq.mcp.tools.PingTool;
+import com.projectiq.mcp.tools.PlanExecutionTool;
 import com.projectiq.mcp.tools.PromptContextTool;
 import com.projectiq.mcp.tools.OrchestrateWorkflowTool;
 import com.projectiq.mcp.tools.RefactoringAssistantTool;
@@ -65,6 +66,7 @@ public class McpServerConfig {
      * @param orchestrateWorkflowTool the workflow orchestration tool
      * @param refactoringAssistantTool the refactoring assistant tool
      * @param buildContextPipelineTool the build context pipeline tool
+     * @param planExecutionTool the plan execution tool
      * @return ToolCallbackProvider containing all registered tools
      */
     @Bean
@@ -93,7 +95,8 @@ public class McpServerConfig {
             TestImpactAnalysisTool testImpactAnalysisTool,
             RefactoringAssistantTool refactoringAssistantTool,
             ExecuteWorkflowTool executeWorkflowTool,
-            OrchestrateWorkflowTool orchestrateWorkflowTool) {
+            OrchestrateWorkflowTool orchestrateWorkflowTool,
+            PlanExecutionTool planExecutionTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -120,7 +123,8 @@ public class McpServerConfig {
                         testImpactAnalysisTool,
                         refactoringAssistantTool,
                         executeWorkflowTool,
-                        orchestrateWorkflowTool
+                        orchestrateWorkflowTool,
+                        planExecutionTool
                 )
                 .build();
     }
