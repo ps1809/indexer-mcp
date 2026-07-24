@@ -7,6 +7,8 @@ import com.projectiq.mcp.tools.AssembleContextTool;
 import com.projectiq.mcp.tools.AssessExecutionReadinessTool;
 import com.projectiq.mcp.tools.BuildContextPipelineTool;
 import com.projectiq.mcp.tools.BuildContextTool;
+import com.projectiq.mcp.tools.CompleteDevelopmentSessionTool;
+import com.projectiq.mcp.tools.CreateDevelopmentSessionTool;
 import com.projectiq.mcp.tools.DevelopmentContextTool;
 import com.projectiq.mcp.tools.ExecuteWorkflowTool;
 import com.projectiq.mcp.tools.FindClassTool;
@@ -14,6 +16,7 @@ import com.projectiq.mcp.tools.FindDependencyTool;
 import com.projectiq.mcp.tools.FindMethodTool;
 import com.projectiq.mcp.tools.FindRestApiTool;
 import com.projectiq.mcp.tools.FindSpringComponentTool;
+import com.projectiq.mcp.tools.GetDevelopmentSessionTool;
 import com.projectiq.mcp.tools.ImplementationPlanTool;
 import com.projectiq.mcp.tools.ListRelatedFilesTool;
 import com.projectiq.mcp.tools.PingTool;
@@ -25,6 +28,7 @@ import com.projectiq.mcp.tools.RepositoryConventionTool;
 import com.projectiq.mcp.tools.RepositoryHealthTool;
 import com.projectiq.mcp.tools.RepositoryStatisticsTool;
 import com.projectiq.mcp.tools.RepositorySummaryTool;
+import com.projectiq.mcp.tools.ResumeDevelopmentSessionTool;
 import com.projectiq.mcp.tools.SearchCodeTool;
 import com.projectiq.mcp.tools.TestImpactAnalysisTool;
 import com.projectiq.mcp.tools.GenerateRecommendationsTool;
@@ -71,6 +75,10 @@ public class McpServerConfig {
      * @param buildContextPipelineTool the build context pipeline tool
      * @param planExecutionTool the plan execution tool
      * @param generateRecommendationsTool the generate recommendations tool
+     * @param createDevelopmentSessionTool the create development session tool
+     * @param getDevelopmentSessionTool the get development session tool
+     * @param resumeDevelopmentSessionTool the resume development session tool
+     * @param completeDevelopmentSessionTool the complete development session tool
      * @param assessExecutionReadinessTool the execution readiness tool
      * @param validateWorkflowTool the validate workflow tool
      * @return ToolCallbackProvider containing all registered tools
@@ -105,7 +113,11 @@ public class McpServerConfig {
             PlanExecutionTool planExecutionTool,
             ValidateWorkflowTool validateWorkflowTool,
             GenerateRecommendationsTool generateRecommendationsTool,
-            AssessExecutionReadinessTool assessExecutionReadinessTool) {
+            AssessExecutionReadinessTool assessExecutionReadinessTool,
+            CreateDevelopmentSessionTool createDevelopmentSessionTool,
+            GetDevelopmentSessionTool getDevelopmentSessionTool,
+            ResumeDevelopmentSessionTool resumeDevelopmentSessionTool,
+            CompleteDevelopmentSessionTool completeDevelopmentSessionTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -136,7 +148,11 @@ public class McpServerConfig {
                         planExecutionTool,
                         validateWorkflowTool,
                         generateRecommendationsTool,
-                        assessExecutionReadinessTool
+                        assessExecutionReadinessTool,
+                        createDevelopmentSessionTool,
+                        getDevelopmentSessionTool,
+                        resumeDevelopmentSessionTool,
+                        completeDevelopmentSessionTool
                 )
                 .build();
     }
