@@ -15,6 +15,7 @@ import com.projectiq.mcp.tools.ImplementationPlanTool;
 import com.projectiq.mcp.tools.ListRelatedFilesTool;
 import com.projectiq.mcp.tools.PingTool;
 import com.projectiq.mcp.tools.PromptContextTool;
+import com.projectiq.mcp.tools.OrchestrateWorkflowTool;
 import com.projectiq.mcp.tools.RefactoringAssistantTool;
 import com.projectiq.mcp.tools.RepositoryConventionTool;
 import com.projectiq.mcp.tools.RepositoryHealthTool;
@@ -58,6 +59,7 @@ public class McpServerConfig {
      * @param promptContextTool the prompt context tool
      * @param implementationPlanTool the implementation plan tool
      * @param testImpactAnalysisTool the test impact analysis tool
+     * @param orchestrateWorkflowTool the workflow orchestration tool
      * @param refactoringAssistantTool the refactoring assistant tool
      * @return ToolCallbackProvider containing all registered tools
      */
@@ -84,7 +86,8 @@ public class McpServerConfig {
             RepositoryHealthTool repositoryHealthTool,
             ImplementationPlanTool implementationPlanTool,
             TestImpactAnalysisTool testImpactAnalysisTool,
-            RefactoringAssistantTool refactoringAssistantTool) {
+            RefactoringAssistantTool refactoringAssistantTool,
+            OrchestrateWorkflowTool orchestrateWorkflowTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         pingTool,
@@ -108,7 +111,8 @@ public class McpServerConfig {
                         repositoryHealthTool,
                         implementationPlanTool,
                         testImpactAnalysisTool,
-                        refactoringAssistantTool
+                        refactoringAssistantTool,
+                        orchestrateWorkflowTool
                 )
                 .build();
     }
